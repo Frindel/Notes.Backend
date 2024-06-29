@@ -7,6 +7,6 @@ namespace Notes.Application.Interfaces
     {
         DbSet<User> Users { get; set; }
 
-        Task<int> OnSaveChangesAsync(CancellationToken token);
+        Task<int> SaveChangesAsync(CancellationToken token);
     }
 }
