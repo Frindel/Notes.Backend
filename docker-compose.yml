@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  notes.webapi:
+    image: ${DOCKER_REGISTRY-}noteswebapi
+    build:
+      context: .
+      dockerfile: Notes.WebApi/Dockerfile
