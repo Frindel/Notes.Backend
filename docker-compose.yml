@@ -1,8 +1,34 @@
-version: '3.4'
+version: '3.8'
 
 services:
   notes.webapi:
+    container_name: notes-backend
     image: ${DOCKER_REGISTRY-}noteswebapi
     build:
       context: .
       dockerfile: Notes.WebApi/Dockerfile
+    ports:
+      - 8080:8080
+      - 8081:8081
+    networks:
+     - notes-network
+    depends_on:
+     - db
+
+  db:
+    container_name: notes-db
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "notes"
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "root"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ../database/data:/var/lib/postgresql/data
+    networks:
+      - notes-network
+
+networks:
+  notes-network:
+    name: notes-network
+    driver: bridge
