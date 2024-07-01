@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Notes.Persistence;
+using System.Diagnostics;
 
 namespace Notes.WebApi
 {
@@ -14,14 +17,20 @@ namespace Notes.WebApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            var config = builder.Configuration;
+            builder.Services.OnPersistence(config);
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+           
+            
+
+                // Configure the HTTP request pipeline.
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
 
             app.UseHttpsRedirection();
 

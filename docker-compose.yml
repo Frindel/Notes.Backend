@@ -18,6 +18,8 @@ services:
   db:
     container_name: notes-db
     image: postgres:13.3
+    ports:
+      - 5555:5432
     environment:
       POSTGRES_DB: "notes"
       POSTGRES_USER: "root"

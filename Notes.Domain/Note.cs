@@ -24,15 +24,7 @@
         /// </summary>
         public string Description { get; set; } = null!;
 
-        /// <summary>
-        /// Дата на которую установлена заметка
-        /// </summary>
-        public DateOnly CreatedDate { get; set; }
-
-        /// <summary>
-        /// Время к которому требуется выполнить заметку
-        /// </summary>
-        public TimeOnly Deadline { get; set; }
+        public DateTime Time { get; set; }
 
 
         public bool IsCompleted { get; set; }

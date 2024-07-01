@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notes.Application.Interfaces;
+using Notes.Persistence.Data;
 
 namespace Notes.Persistence
 {
@@ -18,14 +19,14 @@ namespace Notes.Persistence
             services.AddScoped<INotesContext>(options => options.GetService<DataContext>()!);
 
             // регистрация сервиса получения id текущего пользователя
-            services.AddScoped<ICurrentUser, CurrentUserService>();
+            //services.AddScoped<ICurrentUser, CurrentUserService>();
 
             return services;
         }
 
         private static void AddDbService(IServiceCollection services, IConfiguration configuration)
         {
-            string? dbConnectionString = configuration["dbConnection"];
+            string? dbConnectionString = configuration["ConnectionStrings:DbConnection"];
 
             if (dbConnectionString == null)
                 throw new ArgumentNullException(nameof(dbConnectionString));
