@@ -18,9 +18,6 @@ namespace Notes.Persistence
             services.AddScoped<ICategoriesContext>(options => options.GetService<DataContext>()!);
             services.AddScoped<INotesContext>(options => options.GetService<DataContext>()!);
 
-            // регистрация сервиса получения id текущего пользователя
-            //services.AddScoped<ICurrentUser, CurrentUserService>();
-
             return services;
         }
 
