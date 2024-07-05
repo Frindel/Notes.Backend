@@ -18,6 +18,8 @@ namespace Notes.Persistence
             services.AddScoped<ICategoriesContext>(options => options.GetService<DataContext>()!);
             services.AddScoped<INotesContext>(options => options.GetService<DataContext>()!);
 
+            services.AddScoped<ITokensGenerator, TokensGenerator>();
+
             return services;
         }
 
