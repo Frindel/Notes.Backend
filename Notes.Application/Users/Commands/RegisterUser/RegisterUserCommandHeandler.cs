@@ -6,20 +6,20 @@ using Notes.Domain;
 
 namespace Notes.Application.Users.Commands.RegisterUser
 {
-    public class RegisterUserQueryHeandler : IRequestHandler<RegisterUserQuery, UserDto>
+    public class RegisterUserCommandHeandler : IRequestHandler<RegisterUserCommand, UserDto>
     {
         IUsersContext _users;
         ITokensGenerator _tokensGenerator;
         IMapper _mapper;
 
-        public RegisterUserQueryHeandler(IUsersContext users, ITokensGenerator tokensGenerator, IMapper mapper)
+        public RegisterUserCommandHeandler(IUsersContext users, ITokensGenerator tokensGenerator, IMapper mapper)
         {
             _users = users;
             _tokensGenerator = tokensGenerator;
             _mapper = mapper;
         }
 
-        public async Task<UserDto> Handle(RegisterUserQuery request, CancellationToken cancellationToken)
+        public async Task<UserDto> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
             bool userIsAlreadyExists = UserWithLoginIsExists(request.Login);
             if (userIsAlreadyExists)
@@ -35,7 +35,7 @@ namespace Notes.Application.Users.Commands.RegisterUser
             return existingUser != null;
         }
 
-        async Task<UserDto> CreateNewUserAndSave(RegisterUserQuery request, CancellationToken token)
+        async Task<UserDto> CreateNewUserAndSave(RegisterUserCommand request, CancellationToken token)
         {
             string refreshToken = _tokensGenerator.GenerateRefrechToken();
             User newUser = new User()

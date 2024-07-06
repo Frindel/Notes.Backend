@@ -2,7 +2,7 @@
 
 namespace Notes.Application.Users.Commands.RegisterUser
 {
-    public class RegisterUserQuery : IRequest<UserDto>
+    public class RegisterUserCommand : IRequest<UserDto>
     {
         public string Login { get; set; } = null!;
 
