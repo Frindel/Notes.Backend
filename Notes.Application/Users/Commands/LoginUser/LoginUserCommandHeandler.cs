@@ -15,12 +15,12 @@ namespace Notes.Application.Users.Commands.LoginUser
     public class LoginUserCommandHeandler : IRequestHandler<LoginUserCommand, TokensDto>
     {
         IUsersContext _users;
-        ITokensGenerator _tokensGenerator;
+        IJwtTokensService _jwtTokens;
 
-        public LoginUserCommandHeandler(IUsersContext users, ITokensGenerator tokens) 
+        public LoginUserCommandHeandler(IUsersContext users, IJwtTokensService jwtTokens) 
         {
             _users = users;
-            _tokensGenerator = tokens;
+            _jwtTokens = jwtTokens;
         }
 
         public async Task<TokensDto> Handle(LoginUserCommand request, CancellationToken cancellationToken)
@@ -58,8 +58,8 @@ namespace Notes.Application.Users.Commands.LoginUser
         {
             return new TokensDto()
             {
-                AssessToken = _tokensGenerator.GenerateAccessToken(user.Id),
-                RefreshToken = _tokensGenerator.GenerateRefrechToken()
+                AssessToken = _jwtTokens.GenerateAccessToken(user.Id),
+                RefreshToken = _jwtTokens.GenerateRefrechToken(user.Id)
             };
         }
 

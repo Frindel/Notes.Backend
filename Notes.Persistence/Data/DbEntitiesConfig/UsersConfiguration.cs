@@ -51,7 +51,7 @@ namespace Notes.Persistence.Data.DbEntitiesConfig
         {
             builder.Property(u => u.RefreshToken)
                 .HasColumnName("refresh_token")
-                .IsRequired()
+                .IsRequired(false)
                 .HasColumnType("text")
                 .HasMaxLength(256);
 

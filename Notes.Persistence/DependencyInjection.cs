@@ -18,7 +18,8 @@ namespace Notes.Persistence
             services.AddScoped<ICategoriesContext>(options => options.GetService<DataContext>()!);
             services.AddScoped<INotesContext>(options => options.GetService<DataContext>()!);
 
-            services.AddScoped<ITokensGenerator, TokensGenerator>();
+            AddJwtTokensService(services, configuration);
+
 
             return services;
         }
@@ -34,6 +35,16 @@ namespace Notes.Persistence
             {
                 options.UseNpgsql(dbConnectionString);
             });
+        }
+
+        static void AddJwtTokensService(IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddScoped<IJwtTokensService>(_ => new JwtTokensService(
+               secret: configuration["Jwt:Secret"]!,
+               issuer: configuration["Jwt:Issuer"]!,
+               audience: configuration["Jwt:Audience"]!,
+               accessTokenLiveTimeSeconds: int.Parse(configuration["Jwt:AccessTokenValidity"]!),
+               refreshTokenLiveTimeSeconds: int.Parse(configuration["Jwt:AccessTokenValidity"]!)));
         }
     }
 }

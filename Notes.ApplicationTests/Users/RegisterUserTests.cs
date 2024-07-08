@@ -29,8 +29,8 @@ namespace Notes.ApplicationTests.Users
                 Password = Helper.CreateRandomStr(10),
             };
 
-            var tokensGeneratorMock = new Mock<ITokensGenerator>().Object;
-            var handler = new RegisterUserCommandHeandler(context, tokensGeneratorMock, Mapper);
+            var jwtTokensMock = new Mock<IJwtTokensService>().Object;
+            var handler = new RegisterUserCommandHeandler(context, jwtTokensMock, Mapper);
 
             // Act / Assert
             Assert.ThrowsAsync<UserIsAlreadyRegisteredException>(() => handler.Handle(command, CancellationToken.None));
@@ -53,15 +53,15 @@ namespace Notes.ApplicationTests.Users
                 Password = Helper.CreateRandomStr(10),
             };
 
-            var tokensGeneratorMock = new Mock<ITokensGenerator>();
-            tokensGeneratorMock
+            var jwtTokensMock = new Mock<IJwtTokensService>();
+            jwtTokensMock
                 .Setup(tg => tg.GenerateAccessToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
-            tokensGeneratorMock
-                .Setup(tg => tg.GenerateRefrechToken())
+            jwtTokensMock
+                .Setup(tg => tg.GenerateRefrechToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
 
-            var heandler = new RegisterUserCommandHeandler(context, tokensGeneratorMock.Object, Mapper);
+            var heandler = new RegisterUserCommandHeandler(context, jwtTokensMock.Object, Mapper);
 
             // Act
             var userDto = await heandler.Handle(commmand, CancellationToken.None);

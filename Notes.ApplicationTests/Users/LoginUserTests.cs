@@ -21,15 +21,15 @@ namespace Notes.ApplicationTests.Users
             context.Users.Add(firstUser);
             await context.SaveChangesAsync(CancellationToken.None);
 
-            var tokensGeneratorMock = new Mock<ITokensGenerator>();
-            tokensGeneratorMock
+            var jwtTokensMock = new Mock<IJwtTokensService>();
+            jwtTokensMock
                 .Setup(tg => tg.GenerateAccessToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
-            tokensGeneratorMock
-                .Setup(tg => tg.GenerateRefrechToken())
+            jwtTokensMock
+                .Setup(tg => tg.GenerateRefrechToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
 
-            var heandler = new LoginUserCommandHeandler(context, tokensGeneratorMock.Object);
+            var heandler = new LoginUserCommandHeandler(context, jwtTokensMock.Object);
 
             var command = new LoginUserCommand()
             {
@@ -60,9 +60,9 @@ namespace Notes.ApplicationTests.Users
             context.Users.Add(firstUser);
             await context.SaveChangesAsync(CancellationToken.None);
 
-            var tokensGeneratorMock = new Mock<ITokensGenerator>();
+            var jwtTokensMock = new Mock<IJwtTokensService>();
 
-            var heandler = new LoginUserCommandHeandler(context, tokensGeneratorMock.Object);
+            var heandler = new LoginUserCommandHeandler(context, jwtTokensMock.Object);
 
             var command = new LoginUserCommand()
             {
@@ -84,9 +84,9 @@ namespace Notes.ApplicationTests.Users
             context.Users.Add(firstUser);
             await context.SaveChangesAsync(CancellationToken.None);
 
-            var tokensGeneratorMock = new Mock<ITokensGenerator>();
+            var jwtTokensMock = new Mock<IJwtTokensService>();
 
-            var heandler = new LoginUserCommandHeandler(context, tokensGeneratorMock.Object);
+            var heandler = new LoginUserCommandHeandler(context, jwtTokensMock.Object);
 
             var command = new LoginUserCommand()
             {

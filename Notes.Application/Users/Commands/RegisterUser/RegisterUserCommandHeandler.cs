@@ -9,13 +9,13 @@ namespace Notes.Application.Users.Commands.RegisterUser
     public class RegisterUserCommandHeandler : IRequestHandler<RegisterUserCommand, UserDto>
     {
         IUsersContext _users;
-        ITokensGenerator _tokensGenerator;
+        IJwtTokensService _jwtTokens;
         IMapper _mapper;
 
-        public RegisterUserCommandHeandler(IUsersContext users, ITokensGenerator tokensGenerator, IMapper mapper)
+        public RegisterUserCommandHeandler(IUsersContext users, IJwtTokensService jwtTokens, IMapper mapper)
         {
             _users = users;
-            _tokensGenerator = tokensGenerator;
+            _jwtTokens = jwtTokens;
             _mapper = mapper;
         }
 
@@ -35,20 +35,19 @@ namespace Notes.Application.Users.Commands.RegisterUser
             return existingUser != null;
         }
 
-        async Task<UserDto> CreateNewUserAndSave(RegisterUserCommand request, CancellationToken token)
+        async Task<UserDto> CreateNewUserAndSave(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            string refreshToken = _tokensGenerator.GenerateRefrechToken();
             User newUser = new User()
             {
                 Login = request.Login,
                 Password = request.Password,
-                RefreshToken = refreshToken
             };
 
-            await SaveUser(newUser, token);
-            string accessToken = GetAccessToken(newUser);
+            User savedUser = await SaveUser(newUser, cancellationToken);
+            var tokens = CreateTokens(savedUser.Id);
+            await SaveRefreshTokenForUser(savedUser, tokens.refreshToken, cancellationToken);
 
-            return MergeUserData(newUser, accessToken);
+            return MergeUserData(newUser, tokens);
         }
 
         async Task<User> SaveUser(User user, CancellationToken token)
@@ -58,15 +57,25 @@ namespace Notes.Application.Users.Commands.RegisterUser
             return user;
         }
 
-        string GetAccessToken(User user)
+        (string accessToken, string refreshToken) CreateTokens(int userId)
         {
-            return _tokensGenerator.GenerateAccessToken(user.Id);
+            string accessToken = _jwtTokens.GenerateAccessToken(userId);
+            string refreshToken = _jwtTokens.GenerateRefrechToken(userId);
+            return (accessToken, refreshToken);
         }
 
-        UserDto MergeUserData(User newUser, string accessToken)
+        async Task SaveRefreshTokenForUser(User user, string refreshToken, CancellationToken cancellationToken)
+        {
+            user.RefreshToken = refreshToken;
+
+            _users.Users.Update(user);
+            await _users.SaveChangesAsync(cancellationToken);
+        }
+
+        UserDto MergeUserData(User newUser, (string accessToken, string refreshToken) tokens)
         {
             UserDto addedUser = _mapper.Map<UserDto>(newUser);
-            addedUser.AccessToken = accessToken;
+            addedUser.AccessToken = tokens.accessToken;
             return addedUser;
         }
     }

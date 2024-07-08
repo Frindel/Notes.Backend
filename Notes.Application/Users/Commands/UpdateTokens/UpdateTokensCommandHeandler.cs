@@ -9,22 +9,30 @@ namespace Notes.Application.Users.Commands.UpdateTokens
     public class UpdateTokensCommandHeandler : IRequestHandler<UpdateTokensCommand, TokensDto>
     {
         IUsersContext _usersContext;
-        ITokensGenerator _tokensGenerator;
+        IJwtTokensService _jwtTokens;
 
-        public UpdateTokensCommandHeandler(IUsersContext users, ITokensGenerator tokensGenerator)
+        public UpdateTokensCommandHeandler(IUsersContext users, IJwtTokensService jwtTokens)
         {
             _usersContext = users;
-            _tokensGenerator = tokensGenerator;
+            _jwtTokens = jwtTokens;
         }
 
         public async Task<TokensDto> Handle(UpdateTokensCommand request, CancellationToken cancellationToken)
         {
+            if (!RefreshTokenIsValid(request.RefreshToken))
+                throw new ValidationException("refresh token is not valid.");
+
             User? user = GetUserByRefreshToken(request.RefreshToken);
             if (user == null)
                 throw new UserNotFoundException("user with this refresh-token was not found");
 
             var newTokens = await UpdateAndSaveTokens(user, cancellationToken);
             return newTokens;
+        }
+
+        bool RefreshTokenIsValid(string refreshToken)
+        {
+            return _jwtTokens.TokenIsValid(refreshToken);
         }
 
         User? GetUserByRefreshToken(string refreshToken)
@@ -44,8 +52,8 @@ namespace Notes.Application.Users.Commands.UpdateTokens
         {
             return new TokensDto()
             {
-                AssessToken = _tokensGenerator.GenerateAccessToken(user.Id),
-                RefreshToken = _tokensGenerator.GenerateRefrechToken()
+                AssessToken = _jwtTokens.GenerateAccessToken(user.Id),
+                RefreshToken = _jwtTokens.GenerateRefrechToken(user.Id)
             };
         }
 
