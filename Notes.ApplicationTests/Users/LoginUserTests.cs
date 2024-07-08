@@ -71,7 +71,7 @@ namespace Notes.ApplicationTests.Users
             };
 
             // Act / Assert
-            Assert.ThrowsAsync<UserNotExistsException>(() => heandler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<UserNotFoundException>(() => heandler.Handle(command, CancellationToken.None));
         }
 
         [Test]

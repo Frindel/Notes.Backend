@@ -27,7 +27,7 @@ namespace Notes.Application.Users.Commands.LoginUser
         {
             User? user = await GetUserByLogin(request.Login);
             if (user == null)
-                throw new UserNotExistsException("user does not exist");
+                throw new UserNotFoundException("user does not exist");
 
             if (!LoginAndPasswordIsValid(request, user))
                 throw new InvalidLoginOrPasswordException("invalid user login or password");
