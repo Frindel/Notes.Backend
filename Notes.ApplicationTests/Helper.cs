@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Notes.ApplicationTests.Users
+namespace Notes.ApplicationTests
 {
     internal static class Helper
     {
@@ -30,8 +30,8 @@ namespace Notes.ApplicationTests.Users
             {
                 Id = number,
                 Login = $"user {number}",
-                Password = Helper.CreateRandomStr(10),
-                RefreshToken = Helper.CreateRandomStr(256),
+                Password = CreateRandomStr(10),
+                RefreshToken = CreateRandomStr(256),
             };
         }
     }
