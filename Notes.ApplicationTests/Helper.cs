@@ -1,9 +1,5 @@
 ﻿using Notes.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Notes.ApplicationTests
 {
@@ -33,6 +29,17 @@ namespace Notes.ApplicationTests
                 Password = CreateRandomStr(10),
                 RefreshToken = CreateRandomStr(256),
             };
+        }
+
+        public static Category CreateCategoryOfNumber(int number, User user)
+        {
+            return new Category()
+            {
+                Id = number,
+                Name = $"category {number}",
+                User = user
+            };
+
         }
     }
 }
