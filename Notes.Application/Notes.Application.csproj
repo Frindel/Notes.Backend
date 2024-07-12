@@ -24,4 +24,8 @@
     <ProjectReference Include="..\Notes.Domain\Notes.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Notes\Queries\" />
+  </ItemGroup>
+
 </Project>

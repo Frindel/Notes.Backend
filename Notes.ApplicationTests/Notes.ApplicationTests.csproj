@@ -20,10 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Notes\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Notes.Persistence\Notes.Persistence.csproj" />
   </ItemGroup>
 
