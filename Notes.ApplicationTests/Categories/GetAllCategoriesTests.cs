@@ -37,7 +37,8 @@ namespace Notes.ApplicationTests.Categories
                 Assert.IsNotNull(categories);
                 Assert.IsNotNull(categories.Categories);
                 Assert.IsNotEmpty(categories.Categories);
-                Assert.IsTrue(categories.Categories.Count == context.Categories.Count());
+                Assert.IsTrue(categories.Categories.Count == context.Categories.Count(),
+                    "number of categories in the result does not match");
             });
         }
 
