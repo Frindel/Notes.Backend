@@ -80,8 +80,11 @@ namespace Notes.ApplicationTests.Common
 
         }
 
-        public Note CreateNoteOfNumber(int number, User user, List<Category> categories)
+        public Note CreateNoteOfNumber(int number, User user, List<Category> categories = null!)
         {
+            if (categories == null)
+                categories = new List<Category>();
+
             return new Note()
             {
                 PersonalId = number,
