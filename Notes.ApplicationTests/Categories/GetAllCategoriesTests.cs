@@ -7,7 +7,7 @@ using Notes.Persistence.Data;
 namespace Notes.ApplicationTests.Categories
 {
     [TestFixture]
-    internal class GetAllCategoriesTests : TestBase
+    internal class GetAllCategoriesTests : TestsBase
     {
         [Test]
         public async Task SuccessfulGettingCategories()
@@ -17,7 +17,7 @@ namespace Notes.ApplicationTests.Categories
             Category firstCategory = Helper.CreateCategoryOfNumber(1, firstUser);
             Category secondCategory = Helper.CreateCategoryOfNumber(2, firstUser);
 
-            DataContext context = CreateEmptyDataContex();
+            DataContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstUser);
             context.Categories.AddRange(firstCategory, secondCategory);
             await context.SaveChangesAsync();
@@ -48,7 +48,7 @@ namespace Notes.ApplicationTests.Categories
             User firstUser = Helper.CreateUserOfNumber(1);
             User secondNotSavedUser = Helper.CreateUserOfNumber(2);
             
-            DataContext context = CreateEmptyDataContex();
+            DataContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstUser);
             context.SaveChanges();
 

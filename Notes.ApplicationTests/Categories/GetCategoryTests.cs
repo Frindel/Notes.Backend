@@ -7,7 +7,7 @@ using Notes.Persistence.Data;
 namespace Notes.ApplicationTests.Categories
 {
     [TestFixture]
-    internal class GetCategoryTests : TestBase
+    internal class GetCategoryTests : TestsBase
     {
         const string _cateroryName = "test";
 
@@ -22,7 +22,7 @@ namespace Notes.ApplicationTests.Categories
                 User = firstTestUser
             };
 
-            DataContext context = CreateEmptyDataContex();
+            DataContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstTestUser);
             context.Categories.Add(testCategory);
             await context.SaveChangesAsync();
@@ -52,7 +52,7 @@ namespace Notes.ApplicationTests.Categories
             User firstTestUser = Helper.CreateUserOfNumber(1);
             User notSavedUser = Helper.CreateUserOfNumber(2);
 
-            DataContext context = CreateEmptyDataContex();
+            DataContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstTestUser);
             context.SaveChanges();
 
@@ -75,7 +75,7 @@ namespace Notes.ApplicationTests.Categories
             Category firstCategory = Helper.CreateCategoryOfNumber(1, firstTestUser);
             Category secondNotFoundCategory = Helper.CreateCategoryOfNumber(2, firstTestUser);
 
-            DataContext context = CreateEmptyDataContex();
+            DataContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstTestUser);
             context.Categories.Add(firstCategory);
             context.SaveChanges();

@@ -7,7 +7,7 @@ using Notes.Persistence.Data;
 namespace Notes.ApplicationTests.Categories
 {
     [TestFixture]
-    internal class CreateCategoryTests : TestBase
+    internal class CreateCategoryTests : TestsBase
     {
         const string categoryName = "test";
 
@@ -16,7 +16,7 @@ namespace Notes.ApplicationTests.Categories
         {
             // Arrange
             User testUser = Helper.CreateUserOfNumber(1);
-            DataContext context = CreateEmptyDataContex();
+            DataContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(testUser);
             await context.SaveChangesAsync();
 
@@ -45,7 +45,7 @@ namespace Notes.ApplicationTests.Categories
             // Arrange
             User firstTestUser = Helper.CreateUserOfNumber(1);
             User secondTestUser = Helper.CreateUserOfNumber(2);
-            DataContext context = CreateEmptyDataContex();
+            DataContext context = ContextManager.CreateEmptyDataContex();
             context.Users.AddRange(firstTestUser);
             await context.SaveChangesAsync();
 

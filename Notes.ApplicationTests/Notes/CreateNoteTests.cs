@@ -7,15 +7,15 @@ using Notes.Persistence.Data;
 namespace Notes.ApplicationTests.Notes
 {
     [TestFixture]
-    internal class CreateNoteTests : TestBase
+    internal class CreateNoteTests : TestsBase
     {
         [Test]
         public async Task SuccessCreatedNote()
         {
             // Arrange
-            DataContext context = CreateEmptyDataContex();
-            List<User> users = AddUserWithNumbers(context, 1);
-            List<Category> categories = AddCategoriesWithNumbers(context, users.First(), 1, 2);
+            DataContext context = ContextManager.CreateEmptyDataContex();
+            List<User> users = Helper.AddUserWithNumbers(context, 1);
+            List<Category> categories = Helper.AddCategoriesWithNumbers(context, users.First(), 1, 2);
 
             var heandler = CreateHeandler(context);
             var command = CreateCommand(users.First(), categories);
@@ -37,8 +37,8 @@ namespace Notes.ApplicationTests.Notes
         public void UserNotFoundException()
         {
             // Arrange
-            DataContext context = CreateEmptyDataContex();
-            User notSavedUser = CreateUserOfNumber(1);
+            DataContext context = ContextManager.CreateEmptyDataContex();
+            User notSavedUser = Helper.CreateUserOfNumber(1);
 
             var heandler = CreateHeandler(context);
             var command = CreateCommand(notSavedUser);
@@ -51,9 +51,9 @@ namespace Notes.ApplicationTests.Notes
         public void CategoryNotFoundException()
         {
             // Arrange
-            DataContext context = CreateEmptyDataContex();
-            List<User> savedUsers = AddUserWithNumbers(context, 1);
-            Category notSavedCategory = CreateCategoryOfNumber(1, savedUsers.First());
+            DataContext context = ContextManager.CreateEmptyDataContex();
+            List<User> savedUsers = Helper.AddUserWithNumbers(context, 1);
+            Category notSavedCategory = Helper.CreateCategoryOfNumber(1, savedUsers.First());
 
             var heandler = CreateHeandler(context);
             var command = CreateCommand(savedUsers.First(), new List<Category>() { notSavedCategory });

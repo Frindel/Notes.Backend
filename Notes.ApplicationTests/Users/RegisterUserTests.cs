@@ -4,13 +4,11 @@ using Notes.Application.Interfaces;
 using Notes.Application.Users.Commands.RegisterUser;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
-using Notes.Persistence.Data;
-using System.Text;
 
 namespace Notes.ApplicationTests.Users
 {
     [TestFixture]
-    internal class RegisterUserTests : TestBase
+    internal class RegisterUserTests : TestsBase
     {
 
         [Test]
@@ -19,7 +17,7 @@ namespace Notes.ApplicationTests.Users
             // Arrange
             User firstUser = Helper.CreateUserOfNumber(1);
 
-            IUsersContext context = CreateEmptyDataContex();
+            IUsersContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstUser);
             await context.SaveChangesAsync(CancellationToken.None);
 
@@ -43,7 +41,7 @@ namespace Notes.ApplicationTests.Users
             User firstUser = Helper.CreateUserOfNumber(1);
             User secondUser = Helper.CreateUserOfNumber(2);
 
-            IUsersContext context = CreateEmptyDataContex();
+            IUsersContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstUser);
             await context.SaveChangesAsync(CancellationToken.None);
 

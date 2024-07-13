@@ -9,7 +9,7 @@ using NUnit.Framework.Internal;
 namespace Notes.ApplicationTests.Users
 {
     [TestFixture]
-    internal class LoginUserTests : TestBase
+    internal class LoginUserTests : TestsBase
     {
         [Test]
         public async Task SuccessLogin()
@@ -17,7 +17,7 @@ namespace Notes.ApplicationTests.Users
             // Arrange
             User firstUser = Helper.CreateUserOfNumber(1);
 
-            IUsersContext context = CreateEmptyDataContex();
+            IUsersContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstUser);
             await context.SaveChangesAsync(CancellationToken.None);
 
@@ -56,7 +56,7 @@ namespace Notes.ApplicationTests.Users
             User firstUser = Helper.CreateUserOfNumber(1);
             User secondUser = Helper.CreateUserOfNumber(2);
 
-            IUsersContext context = CreateEmptyDataContex();
+            IUsersContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstUser);
             await context.SaveChangesAsync(CancellationToken.None);
 
@@ -80,7 +80,7 @@ namespace Notes.ApplicationTests.Users
             // Arrange
             User firstUser = Helper.CreateUserOfNumber(1);
 
-            IUsersContext context = CreateEmptyDataContex();
+            IUsersContext context = ContextManager.CreateEmptyDataContex();
             context.Users.Add(firstUser);
             await context.SaveChangesAsync(CancellationToken.None);
 
