@@ -1,68 +1,50 @@
 ﻿using Moq;
 using Notes.Application.Common.Exceptions;
+using Notes.Application.Common.Helpers;
 using Notes.Application.Interfaces;
 using Notes.Application.Users.Commands.RegisterUser;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
+using Notes.Persistence.Data;
 
 namespace Notes.ApplicationTests.Users
 {
     [TestFixture]
     internal class RegisterUserTests : TestsBase
     {
+        DataContext _context;
+        Mock<IJwtTokensService> _jwtTokensServiceMock;
+        RegisterUserCommandHandler _handler;
 
-        [Test]
-        public async Task AddedUserAlreadyExistsException()
+        [SetUp]
+        public void SetUp()
         {
-            // Arrange
-            User firstUser = Helper.CreateUserOfNumber(1);
+            _context = ContextManager.CreateEmptyDataContex();
+            _jwtTokensServiceMock = new Mock<IJwtTokensService>();
+            _handler = CreateHandler();
+        }
 
-            IUsersContext context = ContextManager.CreateEmptyDataContex();
-            context.Users.Add(firstUser);
-            await context.SaveChangesAsync(CancellationToken.None);
-
-            var command = new RegisterUserCommand()
-            {
-                Login = firstUser.Login,
-                Password = Helper.CreateRandomStr(10),
-            };
-
-            var jwtTokensMock = new Mock<IJwtTokensService>().Object;
-            var handler = new RegisterUserCommandHeandler(context, jwtTokensMock, Mapper);
-
-            // Act / Assert
-            Assert.ThrowsAsync<UserIsAlreadyRegisteredException>(() => handler.Handle(command, CancellationToken.None));
+        RegisterUserCommandHandler CreateHandler()
+        {
+            UsersHelper usersHelper = new UsersHelper(_context, _jwtTokensServiceMock.Object);
+            return new RegisterUserCommandHandler(usersHelper, _context, Mapper);
         }
 
         [Test]
         public async Task SuccessfulUserAddition()
         {
             // Arrange
-            User firstUser = Helper.CreateUserOfNumber(1);
-            User secondUser = Helper.CreateUserOfNumber(2);
-
-            IUsersContext context = ContextManager.CreateEmptyDataContex();
-            context.Users.Add(firstUser);
-            await context.SaveChangesAsync(CancellationToken.None);
-
-            var commmand = new RegisterUserCommand()
-            {
-                Login = secondUser.Login,
-                Password = Helper.CreateRandomStr(10),
-            };
-
-            var jwtTokensMock = new Mock<IJwtTokensService>();
-            jwtTokensMock
+            User newUser = Helper.CreateUserOfNumber(1);
+            _jwtTokensServiceMock
                 .Setup(tg => tg.GenerateAccessToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
-            jwtTokensMock
+            _jwtTokensServiceMock
                 .Setup(tg => tg.GenerateRefrechToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
-
-            var heandler = new RegisterUserCommandHeandler(context, jwtTokensMock.Object, Mapper);
+            var command = CreateCommand(newUser.Login, newUser.Password);
 
             // Act
-            var userDto = await heandler.Handle(commmand, CancellationToken.None);
+            var userDto = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             Assert.Multiple(() =>
@@ -73,5 +55,24 @@ namespace Notes.ApplicationTests.Users
                 Assert.IsNotNull(userDto.RefreshToken);
             });
         }
+
+        [Test]
+        public void AddingUserAlreadyExistsException()
+        {
+            // Arrange
+            User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
+            User notSavedUser = Helper.CreateUserOfNumber(2);
+            var command = CreateCommand(savedUser.Login, notSavedUser.Password);
+
+            // Act / Assert
+            Assert.ThrowsAsync<UserIsAlreadyRegisteredException>(() => _handler.Handle(command, CancellationToken.None));
+        }
+
+        RegisterUserCommand CreateCommand(string login, string password) =>
+            new RegisterUserCommand()
+            {
+                Login = login,
+                Password = password
+            };
     }
 }

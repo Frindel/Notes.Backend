@@ -3,6 +3,8 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Notes.Application.Common.Behaviors;
 using System.Reflection;
+using Notes.Application.Common.Helpers;
+using Notes.Application.Interfaces;
 
 namespace Notes.Application
 {
@@ -20,6 +22,16 @@ namespace Notes.Application
 
             // регистарция промежутночны обработчиков запроса
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+            RegisterHelpers(services);
+            return services;
+        }
+
+        static IServiceCollection RegisterHelpers(IServiceCollection services)
+        {
+            services.AddScoped<UsersHelper>();
+            services.AddScoped<NotesHelper>();
+            services.AddScoped<CategoriesHelper>();
 
             return services;
         }

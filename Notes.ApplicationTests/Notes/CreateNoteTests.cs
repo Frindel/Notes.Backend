@@ -1,4 +1,7 @@
-﻿using Notes.Application.Common.Exceptions;
+﻿using Moq;
+using Notes.Application.Common.Exceptions;
+using Notes.Application.Common.Helpers;
+using Notes.Application.Interfaces;
 using Notes.Application.Notes.Commands.CreateNote;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
@@ -9,19 +12,40 @@ namespace Notes.ApplicationTests.Notes
     [TestFixture]
     internal class CreateNoteTests : TestsBase
     {
+        DataContext _context;
+        User _savedUser;
+        List<Category> _savedCategories;
+        CreateNoteCommandHandler _handler;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _context = ContextManager.CreateEmptyDataContex();
+            _savedUser = Helper.AddUserWithNumbers(_context, 1).First();
+            _savedCategories = Helper.AddCategoriesWithNumbers(_context, _savedUser, 1, 2);
+            _handler = CreateHandler();
+        }
+
+        CreateNoteCommandHandler CreateHandler()
+        {
+            var jwtTokensServiceMock = new Mock<IJwtTokensService>();
+            UsersHelper usersHelper = new UsersHelper(_context, jwtTokensServiceMock.Object);
+
+            CategoriesHelper categoriesHelper = new CategoriesHelper(_context);
+            NotesHelper notesHelper = new NotesHelper(_context);
+
+            var handler = new CreateNoteCommandHandler(usersHelper, categoriesHelper, notesHelper, _context, Mapper);
+            return handler;
+        }
+
         [Test]
         public async Task SuccessCreatedNote()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            List<User> users = Helper.AddUserWithNumbers(context, 1);
-            List<Category> categories = Helper.AddCategoriesWithNumbers(context, users.First(), 1, 2);
-
-            var heandler = CreateHeandler(context);
-            var command = CreateCommand(users.First(), categories);
+            var command = CreateCommand(_savedUser, _savedCategories);
 
             // Act
-            var createdNote = await heandler.Handle(command, CancellationToken.None);
+            var createdNote = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             Assert.Multiple(() =>
@@ -37,35 +61,22 @@ namespace Notes.ApplicationTests.Notes
         public void UserNotFoundException()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User notSavedUser = Helper.CreateUserOfNumber(1);
-
-            var heandler = CreateHeandler(context);
+            User notSavedUser = Helper.CreateUserOfNumber(2);
             var command = CreateCommand(notSavedUser);
 
             // Act / accert
-            Assert.ThrowsAsync<UserNotFoundException>(() => heandler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Test]
         public void CategoryNotFoundException()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            List<User> savedUsers = Helper.AddUserWithNumbers(context, 1);
-            Category notSavedCategory = Helper.CreateCategoryOfNumber(1, savedUsers.First());
-
-            var heandler = CreateHeandler(context);
-            var command = CreateCommand(savedUsers.First(), new List<Category>() { notSavedCategory });
+            Category notSavedCategory = Helper.CreateCategoryOfNumber(3, _savedUser);
+            var command = CreateCommand(_savedUser, new List<Category>() { notSavedCategory });
 
             // Act / accert
-            Assert.ThrowsAsync<CategoryNotFoundException>(() => heandler.Handle(command, CancellationToken.None));
-        }
-
-        CreateNoteCommandHeandler CreateHeandler(DataContext context)
-        {
-            var heandler = new CreateNoteCommandHeandler(context, context, context, Mapper);
-            return heandler;
+            Assert.ThrowsAsync<CategoryNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         CreateNoteCommand CreateCommand(User forUser, List<Category> withCategories = null!)

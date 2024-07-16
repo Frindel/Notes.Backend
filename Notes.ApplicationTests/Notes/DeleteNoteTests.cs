@@ -1,4 +1,7 @@
-﻿using Notes.Application.Common.Exceptions;
+﻿using Moq;
+using Notes.Application.Common.Exceptions;
+using Notes.Application.Common.Helpers;
+using Notes.Application.Interfaces;
 using Notes.Application.Notes.Commands.DeleteNote;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
@@ -6,69 +9,76 @@ using Notes.Persistence.Data;
 
 namespace Notes.ApplicationTests.Notes
 {
-	[TestFixture]
-	internal class DeleteNoteTests : TestsBase
-	{
-		[Test]
-		public void SuccessfulDeleteUser()
-		{
-			// Arrange
-			DataContext context = ContextManager.CreateEmptyDataContex();
-			User savedUser = Helper.AddUserWithNumbers(context, 1).First();
-			List<Category> savedCategories = Helper.AddCategoriesWithNumbers(context, savedUser, 1, 2);
-			Note savedNote = Helper.AddNotesWithNumbers(context, savedUser, savedCategories, 1).First();
+    [TestFixture]
+    internal class DeleteNoteTests : TestsBase
+    {
+        DataContext _context;
+        User _savedUser;
+        List<Category> _savedCategories;
+        Note _savedNote;
+        DeleteNoteCommandHandler _handler;
 
-			var heandler = CreateHeandler(context);
-			var command = CreateCommand(savedUser, savedNote);
+        [SetUp]
+        public void SetUp()
+        {
+            _context = ContextManager.CreateEmptyDataContex();
+            _savedUser = Helper.AddUserWithNumbers(_context, 1).First();
+            _savedCategories = Helper.AddCategoriesWithNumbers(_context, _savedUser, 1, 2);
+            _savedNote = Helper.AddNotesWithNumbers(_context, _savedUser, _savedCategories, 1).First();
+            _handler = CreateHandler();
+        }
 
-			// Act / Accert
-			Assert.IsTrue(heandler.Handle(command, CancellationToken.None).IsCompletedSuccessfully);
-		}
+        DeleteNoteCommandHandler CreateHandler()
+        {
+            var jwtTokensServiceMock = new Mock<IJwtTokensService>();
+            UsersHelper usersHelper = new UsersHelper(_context, jwtTokensServiceMock.Object);
+            NotesHelper notesHelper = new NotesHelper(_context);
 
-		[Test]
-		public void UserIsNotFoundException()
-		{
-			// Arrange
-			DataContext context = ContextManager.CreateEmptyDataContex();
-			User notSavedUser = Helper.CreateUserOfNumber(1);
-			Note notSavedNote = Helper.CreateNoteOfNumber(1, notSavedUser);
+            var handler = new DeleteNoteCommandHandler(usersHelper, notesHelper, _context);
+            return handler;
+        }
 
-			var heandler = CreateHeandler(context);
-			var command = CreateCommand(notSavedUser, notSavedNote);
+        [Test]
+        public void SuccessfulDeleteUser()
+        {
+            // Arrange
+            var command = CreateCommand(_savedUser, _savedNote);
 
-			// Act / Accert
-			Assert.ThrowsAsync<UserNotFoundException>(() => heandler.Handle(command, CancellationToken.None));
-		}
+            // Act / Accert
+            Assert.IsTrue(_handler.Handle(command, CancellationToken.None).IsCompletedSuccessfully);
+        }
+
+        [Test]
+        public void UserIsNotFoundException()
+        {
+            // Arrange
+            User notSavedUser = Helper.CreateUserOfNumber(2);
+            Note notSavedNote = Helper.CreateNoteOfNumber(2, notSavedUser);
+            var command = CreateCommand(notSavedUser, notSavedNote);
+
+            // Act / Accert
+            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+        }
 
         [Test]
         public void NoteIsNotFoundException()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-			User savedUser = Helper.AddUserWithNumbers(context, 1).First();
-            Note notSavedNote = Helper.CreateNoteOfNumber(1, savedUser);
-
-            var heandler = CreateHeandler(context);
-            var command = CreateCommand(savedUser, notSavedNote);
+            Note notSavedNote = Helper.CreateNoteOfNumber(2, _savedUser);
+            var command = CreateCommand(_savedUser, notSavedNote);
 
             // Act / Accert
-            Assert.ThrowsAsync<NoteNotFoundException>(() => heandler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NoteNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
-        DeleteNoteCommandHeandler CreateHeandler(DataContext context)
-		{
-			var heandler = new DeleteNoteCommandHeandler(context, context, Mapper);
-			return heandler;
-		}
-
-		DeleteNoteCommand CreateCommand(User user, Note note)
-		{
-			var command = new DeleteNoteCommand()
-			{
-				NoteId = note.PersonalId,
-				UserId = user.Id
-			};
-			return command;
-		}
-	}
+        DeleteNoteCommand CreateCommand(User user, Note note)
+        {
+            var command = new DeleteNoteCommand()
+            {
+                NoteId = note.PersonalId,
+                UserId = user.Id
+            };
+            return command;
+        }
+    }
 }

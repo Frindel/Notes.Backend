@@ -3,7 +3,7 @@ using Notes.Application.Notes.Dto;
 
 namespace Notes.Application.Notes.Commands.EditNote
 {
-    public sealed class EditNoteCommand : IRequest<NoteDto>
+    public record class EditNoteCommand : IRequest<NoteDto>
     {
         public int UserId { get; set; }
 

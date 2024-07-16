@@ -39,6 +39,9 @@ namespace Notes.ApplicationTests.Common
 
         public List<Note> AddNotesWithNumbers(DataContext contex, User targetUser, List<Category> categories, params int[] notesNumbers)
         {
+            if (categories == null)
+                categories = new List<Category>();
+
             List<Note> addedNotes = AddEntitiesWithNumbers(
                 contex,
                 number => CreateNoteOfNumber(number, targetUser, categories),

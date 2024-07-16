@@ -1,4 +1,7 @@
-﻿using Notes.Application.Common.Exceptions;
+﻿using Moq;
+using Notes.Application.Common.Exceptions;
+using Notes.Application.Common.Helpers;
+using Notes.Application.Interfaces;
 using Notes.Application.Notes.Queries.GetAllNotes;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
@@ -9,26 +12,44 @@ namespace Notes.ApplicationTests.Notes
     [TestFixture]
     internal class GetAllNotesTests : TestsBase
     {
+        DataContext _context;
+        User _savedUser;
+        List<Category> _savedCategories;
+        List<Note> _savedNotes;
+        GetAllNotesQueryHandler _handler;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _context = ContextManager.CreateEmptyDataContex();
+            _savedUser = Helper.AddUserWithNumbers(_context, 1).First();
+            _savedCategories = Helper.AddCategoriesWithNumbers(_context, _savedUser, 1, 2);
+            _savedNotes = Helper.AddNotesWithNumbers(_context, _savedUser, _savedCategories, 1, 2, 3);
+            _handler = CreateHandler();
+        }
+
+        GetAllNotesQueryHandler CreateHandler()
+        {
+            var jwtTokensServiceMock = new Mock<IJwtTokensService>();
+            UsersHelper usersHelper = new UsersHelper(_context, jwtTokensServiceMock.Object);
+
+            return new GetAllNotesQueryHandler(usersHelper, _context, Mapper);
+        }
+
         [Test]
         public async Task SuccessfulGetingNotes()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User savedUser = Helper.AddUserWithNumbers(context, 1).First();
-            List<Category> savedCategories = Helper.AddCategoriesWithNumbers(context, savedUser, 1, 2);
-            List<Note> notes = Helper.AddNotesWithNumbers(context, savedUser, savedCategories, 1, 2, 3);
-
-            var heandler = CreateQueryHeandler(context);
-            var query = CreateQuery(savedUser);
+            var query = CreateQuery(_savedUser);
 
             // Act
-            var getedUsers = await heandler.Handle(query, CancellationToken.None);
+            var getedUsers = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
             Assert.Multiple(() =>
             {
                 Assert.IsNotNull(getedUsers, "result is null");
-                Assert.IsTrue(getedUsers.Notes.Count == notes.Count,
+                Assert.IsTrue(getedUsers.Notes.Count == _savedNotes.Count,
                     "number of notes in the result does not match");
             });
         }
@@ -37,19 +58,11 @@ namespace Notes.ApplicationTests.Notes
         public void UserNotFoundException()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User notSavedUser = Helper.CreateUserOfNumber(1);
-
-            var heandler = CreateQueryHeandler(context);
+            User notSavedUser = Helper.CreateUserOfNumber(2);
             var query = CreateQuery(notSavedUser);
 
             // Act / Assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => heandler.Handle(query, CancellationToken.None));
-        }
-
-        GetAllNotesQueryHeandler CreateQueryHeandler(DataContext context)
-        {
-            return new GetAllNotesQueryHeandler(context, context, Mapper);
+            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
         GetAllNotesQuery CreateQuery(User user)

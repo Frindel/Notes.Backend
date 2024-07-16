@@ -1,5 +1,8 @@
-﻿using Notes.Application.Categories.Command.Queries.GetCategory;
+﻿using Moq;
+using Notes.Application.Categories.Queries.GetCategory;
 using Notes.Application.Common.Exceptions;
+using Notes.Application.Common.Helpers;
+using Notes.Application.Interfaces;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
 using Notes.Persistence.Data;
@@ -9,33 +12,36 @@ namespace Notes.ApplicationTests.Categories
     [TestFixture]
     internal class GetCategoryTests : TestsBase
     {
-        const string _cateroryName = "test";
+        DataContext _context;
+        User _savedUser;
+        Category _savedCategory;
+        GetCategoryQueryHandler _handler;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _context = ContextManager.CreateEmptyDataContex();
+            _savedUser = Helper.AddUserWithNumbers(_context, 1).First();
+            _savedCategory = Helper.AddCategoriesWithNumbers(_context, _savedUser, 1).First();
+            _handler = CreateHandler();
+        }
+        GetCategoryQueryHandler CreateHandler()
+        {
+            var jwtTokensServiceMock = new Mock<IJwtTokensService>();
+            UsersHelper usersHelper = new UsersHelper(_context, jwtTokensServiceMock.Object);
+
+            var handler = new GetCategoryQueryHandler(usersHelper, _context, _context, Mapper);
+            return handler;
+        }
 
         [Test]
-        public async Task SuccessfulGettingUser()
+        public async Task SuccessfulGettingCategory()
         {
             // Arrange
-            User firstTestUser = Helper.CreateUserOfNumber(1);
-            Category testCategory = new Category()
-            {
-                Name = _cateroryName,
-                User = firstTestUser
-            };
-
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            context.Users.Add(firstTestUser);
-            context.Categories.Add(testCategory);
-            await context.SaveChangesAsync();
-
-            var query = new GetCategoryQuery()
-            {
-                CategoryId = testCategory.Id,
-                UserId = firstTestUser.Id
-            };
-            var heandler = new GetCategoryQueryHeandler(context, context, Mapper);
+            var query = CreateQuery(_savedCategory, _savedUser);
 
             // Act
-            var category = await heandler.Handle(query, CancellationToken.None);
+            var category = await _handler.Handle(query, CancellationToken.None);
 
             // Accert
             Assert.Multiple(() =>
@@ -49,46 +55,31 @@ namespace Notes.ApplicationTests.Categories
         public void UserNotFoundException()
         {
             // Arrange
-            User firstTestUser = Helper.CreateUserOfNumber(1);
             User notSavedUser = Helper.CreateUserOfNumber(2);
-
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            context.Users.Add(firstTestUser);
-            context.SaveChanges();
-
-            var query = new GetCategoryQuery()
-            {
-                UserId = notSavedUser.Id,
-                CategoryId = 1
-            };
-            var heandler = new GetCategoryQueryHeandler(context, context, Mapper);
+            var query = CreateQuery(_savedCategory, notSavedUser);
 
             // Act / Accert
-            Assert.ThrowsAsync<UserNotFoundException>(()=>heandler.Handle(query, CancellationToken.None));
+            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
         [Test]
         public void CategoryNotFoundException()
         {
             // Arrange
-            User firstTestUser = Helper.CreateUserOfNumber(2);
-            Category firstCategory = Helper.CreateCategoryOfNumber(1, firstTestUser);
-            Category secondNotFoundCategory = Helper.CreateCategoryOfNumber(2, firstTestUser);
-
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            context.Users.Add(firstTestUser);
-            context.Categories.Add(firstCategory);
-            context.SaveChanges();
-
-            var query = new GetCategoryQuery()
-            {
-                UserId = firstTestUser.Id,
-                CategoryId = secondNotFoundCategory.Id
-            };
-            var heandler = new GetCategoryQueryHeandler(context, context, Mapper);
+            Category notSavedCategory = Helper.CreateCategoryOfNumber(2, _savedUser);
+            var query = CreateQuery(notSavedCategory, _savedUser);
 
             // Act / Accert
-            Assert.ThrowsAsync<CategoryNotFoundException>(() => heandler.Handle(query, CancellationToken.None));
+            Assert.ThrowsAsync<CategoryNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
+        }
+
+        public GetCategoryQuery CreateQuery(Category category, User forUser)
+        {
+            return new GetCategoryQuery()
+            {
+                CategoryId = category.PersonalId,
+                UserId = forUser.Id
+            };
         }
     }
 }

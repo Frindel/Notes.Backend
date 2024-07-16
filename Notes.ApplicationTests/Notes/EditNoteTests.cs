@@ -1,4 +1,7 @@
-﻿using Notes.Application.Common.Exceptions;
+﻿using Moq;
+using Notes.Application.Common.Exceptions;
+using Notes.Application.Common.Helpers;
+using Notes.Application.Interfaces;
 using Notes.Application.Notes.Commands.EditNote;
 using Notes.Application.Notes.Dto;
 using Notes.ApplicationTests.Common;
@@ -10,22 +13,42 @@ namespace Notes.ApplicationTests.Notes
     [TestFixture]
     internal class EditNoteTests : TestsBase
     {
-        // успешное без категорий
+        DataContext _context;
+        User _savedUser;
+        List<Category> _savedCategories;
+        Note _savedNote;
+        EditNoteCommandHandler _handler;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _context = ContextManager.CreateEmptyDataContex();
+            _savedUser = Helper.AddUserWithNumbers(_context, 1).First();
+            _savedCategories = Helper.AddCategoriesWithNumbers(_context, _savedUser, 1, 2);
+            _savedNote = Helper.AddNotesWithNumbers(_context, _savedUser, null!, 1).First();
+            _handler = CreateHandler();
+        }
+
+        EditNoteCommandHandler CreateHandler()
+        {
+            var jwtTokensServiceMock = new Mock<IJwtTokensService>();
+            UsersHelper usersHelper = new UsersHelper(_context, jwtTokensServiceMock.Object);
+            CategoriesHelper categoriesHelper = new CategoriesHelper(_context);
+            NotesHelper notesHelper = new NotesHelper(_context);
+
+            var handler = new EditNoteCommandHandler(usersHelper, categoriesHelper, notesHelper, Mapper);
+            return handler;
+        }
+
         [Test]
         public async Task SuccessfulEditWithoutSpecifiedCategories()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User savedUser = Helper.AddUserWithNumbers(context, 1).First();
-            Note savedNote = Helper.AddNotesWithNumbers(context, savedUser, new List<Category>(), 1).First();
-
-            Note changedNote = CreateChangedNote(savedNote, new List<Category>());
-
-            var heandler = CreateHeandler(context);
-            var command = CreateCommand(savedUser, changedNote);
+            Note changedNote = CreateChangedNote(_savedNote, new List<Category>());
+            var command = CreateCommand(_savedUser, changedNote);
 
             // Act
-            NoteDto updatedNote = await heandler.Handle(command, CancellationToken.None);
+            NoteDto updatedNote = await _handler.Handle(command, CancellationToken.None);
 
             // Accert
             Assert.Multiple(() =>
@@ -38,23 +61,15 @@ namespace Notes.ApplicationTests.Notes
             });
         }
 
-        // успешное без изменения категорий
         [Test]
         public async Task SuccessfullyChangingNoteWithoutChangingCategories()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User savedUser = Helper.AddUserWithNumbers(context, 1).First();
-            List<Category> savedCategories = Helper.AddCategoriesWithNumbers(context, savedUser, 1, 2);
-            Note savedNote = Helper.AddNotesWithNumbers(context, savedUser, savedCategories, 1).First();
-
-            Note changedNote = CreateChangedNote(savedNote, savedCategories);
-
-            var heandler = CreateHeandler(context);
-            var command = CreateCommand(savedUser, changedNote);
+            Note changedNote = CreateChangedNote(_savedNote, _savedCategories);
+            var command = CreateCommand(_savedUser, changedNote);
 
             // Act
-            NoteDto updatedNote = await heandler.Handle(command, CancellationToken.None);
+            NoteDto updatedNote = await _handler.Handle(command, CancellationToken.None);
 
             // Accert
             Assert.Multiple(() =>
@@ -72,18 +87,11 @@ namespace Notes.ApplicationTests.Notes
         public async Task SuccessfulEditNoteWithCategoryChanges()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User savedUser = Helper.AddUserWithNumbers(context, 1).First();
-            List<Category> savedCategories = Helper.AddCategoriesWithNumbers(context, savedUser, 1, 2);
-            Note savedNote = Helper.AddNotesWithNumbers(context, savedUser, savedCategories, 1).First();
-
-            Note changedNote = CreateChangedNote(savedNote, new List<Category>());
-
-            var heandler = CreateHeandler(context);
-            var command = CreateCommand(savedUser, changedNote);
+            Note changedNote = CreateChangedNote(_savedNote, new List<Category>());
+            var command = CreateCommand(_savedUser, changedNote);
 
             // Act
-            NoteDto updatedNote = await heandler.Handle(command, CancellationToken.None);
+            NoteDto updatedNote = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             Assert.Multiple(() =>
@@ -101,15 +109,12 @@ namespace Notes.ApplicationTests.Notes
         public void UserNotFoundException()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User notSavedUser = Helper.CreateUserOfNumber(1);
-            Note notSavedNote = Helper.CreateNoteOfNumber(1, notSavedUser, new List<Category>());
-
-            var heandler = CreateHeandler(context);
+            User notSavedUser = Helper.CreateUserOfNumber(2);
+            Note notSavedNote = Helper.CreateNoteOfNumber(2, notSavedUser, new List<Category>());
             var command = CreateCommand(notSavedUser, notSavedNote);
 
             // Act / Assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => heandler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         // заметка не найдена
@@ -117,15 +122,11 @@ namespace Notes.ApplicationTests.Notes
         public void NoteNotFoundException()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User savedUser = Helper.AddUserWithNumbers(context, 1).First();
-            Note notSavedNote = Helper.CreateNoteOfNumber(1, savedUser, new List<Category>());
-
-            var heandler = CreateHeandler(context);
-            var command = CreateCommand(savedUser, notSavedNote);
+            Note notSavedNote = Helper.CreateNoteOfNumber(2, _savedUser, new List<Category>());
+            var command = CreateCommand(_savedUser, notSavedNote);
 
             // Act / Assert
-            Assert.ThrowsAsync<NoteNotFoundException>(() => heandler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NoteNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         // категория не найдена
@@ -133,25 +134,13 @@ namespace Notes.ApplicationTests.Notes
         public void CategoryNotFoundException()
         {
             // Arrange
-            DataContext context = ContextManager.CreateEmptyDataContex();
-            User savedUser = Helper.AddUserWithNumbers(context, 1).First();
-            Note savedNote = Helper.AddNotesWithNumbers(context, savedUser, new List<Category>(), 1).First();
-
-            Category notSavedCategory = Helper.CreateCategoryOfNumber(1, savedUser);
-            Note updatedNote = CreateChangedNote(savedNote, new List<Category>() { notSavedCategory });
-
-            var heandler = CreateHeandler(context);
-            var command = CreateCommand(savedUser, updatedNote);
+            Category notSavedCategory = Helper.CreateCategoryOfNumber(3, _savedUser);
+            Note updatedNote = CreateChangedNote(_savedNote, new List<Category>() { notSavedCategory });
+            var command = CreateCommand(_savedUser, updatedNote);
 
             // Act / Assert
-            Assert.ThrowsAsync<CategoryNotFoundException>(() => heandler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<CategoryNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
 
-        }
-
-        EditNoteCommandHeandler CreateHeandler(DataContext context)
-        {
-            var heandler = new EditNoteCommandHeandler(context, context, context, Mapper);
-            return heandler;
         }
 
         EditNoteCommand CreateCommand(User user, Note note)

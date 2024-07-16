@@ -2,7 +2,7 @@
 using Notes.Application.Common.Mapping;
 using Notes.Domain;
 
-namespace Notes.Application.Users.Commands.RegisterUser
+namespace Notes.Application.Users.Dto
 {
     public class UserDto : MappingBase<User>
     {

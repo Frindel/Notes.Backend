@@ -2,42 +2,32 @@
 using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Notes.Application.Common.Exceptions;
+using Notes.Application.Common.Helpers;
 using Notes.Application.Interfaces;
 using Notes.Application.Notes.Dto;
 using Notes.Domain;
 
 namespace Notes.Application.Notes.Queries.GetAllNotes
 {
-    public class GetAllNotesQueryHeandler : IRequestHandler<GetAllNotesQuery, NotesDto>
+    public class GetAllNotesQueryHandler : IRequestHandler<GetAllNotesQuery, NotesDto>
     {
-        INotesContext _notesContext;
-        IUsersContext _usersContext;
-        IMapper _mapper;
+        readonly UsersHelper _usersHelper;
+        readonly INotesContext _notesContext;
+        readonly IMapper _mapper;
 
-        public GetAllNotesQueryHeandler(INotesContext notesContext, IUsersContext usersContext, IMapper mapper)
+        public GetAllNotesQueryHandler(UsersHelper usersHelper, INotesContext notesContext, IMapper mapper)
         {
+            _usersHelper = usersHelper;
             _notesContext = notesContext;
-            _usersContext = usersContext;
             _mapper = mapper;
         }
 
         public async Task<NotesDto> Handle(GetAllNotesQuery request, CancellationToken cancellationToken)
         {
-            User user = await GetUserById(request.UserId, cancellationToken);
+            User user = await _usersHelper.GetUserByIdAsync(request.UserId);
             List<Note> userNotes = await GetNotesFor(user);
 
-            return CreateTransferNotes(userNotes);
-        }
-         
-        async Task<User> GetUserById(int userId, CancellationToken cancellationToken)
-        {
-            User? selectedUser = await _usersContext.Users
-                .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
-            if (selectedUser == null)
-                throw new UserNotFoundException("User is not found");
-
-            return selectedUser;
+            return MapToDto(userNotes);
         }
 
         async Task<List<Note>> GetNotesFor(User user)
@@ -48,7 +38,7 @@ namespace Notes.Application.Notes.Queries.GetAllNotes
             return notes;
         }
 
-        NotesDto CreateTransferNotes(List<Note> notes)
+        NotesDto MapToDto(List<Note> notes)
         {
             List<NoteDto> mappedNotes = notes
                 .AsQueryable()

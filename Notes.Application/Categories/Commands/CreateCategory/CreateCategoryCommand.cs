@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Notes.Application.Categories.Dto;
 
-namespace Notes.Application.Categories.Command.CreateCategory
+namespace Notes.Application.Categories.Commands.CreateCategory
 {
-    public class CreateCategoryCommand : IRequest<CategoryDto>
+    public record class CreateCategoryCommand : IRequest<CategoryDto>
     {
         public int UserId { get; set; }
 
