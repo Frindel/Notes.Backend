@@ -7,7 +7,7 @@ using Notes.ApplicationTests.Common;
 using Notes.Domain;
 using Notes.Persistence.Data;
 
-namespace Notes.ApplicationTests.Categories
+namespace Notes.Tests.Application.Categories
 {
     [TestFixture]
     internal class CreateCategoryTests : TestsBase

@@ -8,7 +8,7 @@ using Notes.ApplicationTests.Common;
 using Notes.Domain;
 using Notes.Persistence.Data;
 
-namespace Notes.ApplicationTests.Notes
+namespace Notes.Tests.Application.Notes
 {
     [TestFixture]
     internal class EditNoteTests : TestsBase

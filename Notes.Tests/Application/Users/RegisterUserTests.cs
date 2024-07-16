@@ -2,20 +2,19 @@
 using Notes.Application.Common.Exceptions;
 using Notes.Application.Common.Helpers;
 using Notes.Application.Interfaces;
-using Notes.Application.Users.Commands.LoginUser;
+using Notes.Application.Users.Commands.RegisterUser;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
 using Notes.Persistence.Data;
-using NUnit.Framework.Internal;
 
-namespace Notes.ApplicationTests.Users
+namespace Notes.Tests.Application.Users
 {
     [TestFixture]
-    internal class LoginUserTests : TestsBase
+    internal class RegisterUserTests : TestsBase
     {
         DataContext _context;
         Mock<IJwtTokensService> _jwtTokensServiceMock;
-        LoginUserCommandHandler _handler;
+        RegisterUserCommandHandler _handler;
 
         [SetUp]
         public void SetUp()
@@ -25,50 +24,40 @@ namespace Notes.ApplicationTests.Users
             _handler = CreateHandler();
         }
 
-        LoginUserCommandHandler CreateHandler()
+        RegisterUserCommandHandler CreateHandler()
         {
             UsersHelper usersHelper = new UsersHelper(_context, _jwtTokensServiceMock.Object);
-            return new LoginUserCommandHandler(usersHelper);
+            return new RegisterUserCommandHandler(usersHelper, _context, Mapper);
         }
 
         [Test]
-        public async Task SuccessLogin()
+        public async Task SuccessfulUserAddition()
         {
             // Arrange
-            User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
+            User newUser = Helper.CreateUserOfNumber(1);
             _jwtTokensServiceMock
                 .Setup(tg => tg.GenerateAccessToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
             _jwtTokensServiceMock
                 .Setup(tg => tg.GenerateRefrechToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
-            var command = CreateCommand(savedUser.Login, savedUser.Password);
+            var command = CreateCommand(newUser.Login, newUser.Password);
 
             // Act
-            var getedTokens = await _handler.Handle(command, CancellationToken.None);
+            var userDto = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(getedTokens);
-                Assert.IsNotNull(getedTokens.AssessToken);
-                Assert.IsNotNull(getedTokens.RefreshToken);
+                Assert.IsNotNull(userDto);
+                Assert.IsNotNull(userDto.Login);
+                Assert.IsNotNull(userDto.AccessToken);
+                Assert.IsNotNull(userDto.RefreshToken);
             });
         }
 
         [Test]
-        public async Task UserNotFundException()
-        {
-            // Arrange
-            User notSavedUser = Helper.CreateUserOfNumber(1);
-            var command = CreateCommand(notSavedUser.Login, notSavedUser.Password);
-
-            // Act / Assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
-        }
-
-        [Test]
-        public async Task InvalidPasswordException()
+        public void AddingUserAlreadyExistsException()
         {
             // Arrange
             User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
@@ -76,15 +65,14 @@ namespace Notes.ApplicationTests.Users
             var command = CreateCommand(savedUser.Login, notSavedUser.Password);
 
             // Act / Assert
-            Assert.ThrowsAsync<InvalidLoginOrPasswordException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<UserIsAlreadyRegisteredException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
-        LoginUserCommand CreateCommand(string login, string password) =>
-            new LoginUserCommand()
+        RegisterUserCommand CreateCommand(string login, string password) =>
+            new RegisterUserCommand()
             {
                 Login = login,
                 Password = password
             };
-
     }
 }

@@ -1,22 +1,21 @@
 ﻿using Moq;
+using Notes.Application.Categories.Queries.GetAllCategories;
 using Notes.Application.Common.Exceptions;
 using Notes.Application.Common.Helpers;
 using Notes.Application.Interfaces;
-using Notes.Application.Notes.Queries.GetAllNotes;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
 using Notes.Persistence.Data;
 
-namespace Notes.ApplicationTests.Notes
+namespace Notes.Tests.Application.Categories
 {
     [TestFixture]
-    internal class GetAllNotesTests : TestsBase
+    internal class GetAllCategoriesTests : TestsBase
     {
         DataContext _context;
         User _savedUser;
         List<Category> _savedCategories;
-        List<Note> _savedNotes;
-        GetAllNotesQueryHandler _handler;
+        GetAllCategoriesQueryHandler _handler;
 
         [SetUp]
         public void SetUp()
@@ -24,33 +23,34 @@ namespace Notes.ApplicationTests.Notes
             _context = ContextManager.CreateEmptyDataContex();
             _savedUser = Helper.AddUserWithNumbers(_context, 1).First();
             _savedCategories = Helper.AddCategoriesWithNumbers(_context, _savedUser, 1, 2);
-            _savedNotes = Helper.AddNotesWithNumbers(_context, _savedUser, _savedCategories, 1, 2, 3);
             _handler = CreateHandler();
         }
-
-        GetAllNotesQueryHandler CreateHandler()
+        GetAllCategoriesQueryHandler CreateHandler()
         {
             var jwtTokensServiceMock = new Mock<IJwtTokensService>();
             UsersHelper usersHelper = new UsersHelper(_context, jwtTokensServiceMock.Object);
 
-            return new GetAllNotesQueryHandler(usersHelper, _context, Mapper);
+            var handler = new GetAllCategoriesQueryHandler(usersHelper, _context, Mapper);
+            return handler;
         }
 
         [Test]
-        public async Task SuccessfulGetingNotes()
+        public async Task SuccessfulGettingCategories()
         {
             // Arrange
             var query = CreateQuery(_savedUser);
 
             // Act
-            var getedUsers = await _handler.Handle(query, CancellationToken.None);
+            var categories = await _handler.Handle(query, CancellationToken.None);
 
-            // Assert
+            // Accert
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(getedUsers, "result is null");
-                Assert.IsTrue(getedUsers.Notes.Count == _savedNotes.Count,
-                    "number of notes in the result does not match");
+                Assert.IsNotNull(categories);
+                Assert.IsNotNull(categories.Categories);
+                Assert.IsNotEmpty(categories.Categories);
+                Assert.IsTrue(categories.Categories.Count == _savedCategories.Count,
+                    "number of categories in the result does not match");
             });
         }
 
@@ -61,15 +61,15 @@ namespace Notes.ApplicationTests.Notes
             User notSavedUser = Helper.CreateUserOfNumber(2);
             var query = CreateQuery(notSavedUser);
 
-            // Act / Assert
+            // Act / Accert
             Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
-        GetAllNotesQuery CreateQuery(User user)
+        public GetAllCategoriesQuery CreateQuery(User forUser)
         {
-            return new GetAllNotesQuery()
+            return new GetAllCategoriesQuery()
             {
-                UserId = user.Id
+                UserId = forUser.Id
             };
         }
     }

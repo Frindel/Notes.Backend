@@ -2,19 +2,20 @@
 using Notes.Application.Common.Exceptions;
 using Notes.Application.Common.Helpers;
 using Notes.Application.Interfaces;
-using Notes.Application.Users.Commands.UpdateTokens;
+using Notes.Application.Users.Commands.LoginUser;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
 using Notes.Persistence.Data;
+using NUnit.Framework.Internal;
 
-namespace Notes.ApplicationTests.Users
+namespace Notes.Tests.Application.Users
 {
     [TestFixture]
-    internal class UpdateTokensTests : TestsBase
+    internal class LoginUserTests : TestsBase
     {
         DataContext _context;
         Mock<IJwtTokensService> _jwtTokensServiceMock;
-        UpdateTokensCommandHandler _handler;
+        LoginUserCommandHandler _handler;
 
         [SetUp]
         public void SetUp()
@@ -24,14 +25,14 @@ namespace Notes.ApplicationTests.Users
             _handler = CreateHandler();
         }
 
-        UpdateTokensCommandHandler CreateHandler()
+        LoginUserCommandHandler CreateHandler()
         {
             UsersHelper usersHelper = new UsersHelper(_context, _jwtTokensServiceMock.Object);
-            return new UpdateTokensCommandHandler(usersHelper, _context, _jwtTokensServiceMock.Object);
+            return new LoginUserCommandHandler(usersHelper);
         }
 
         [Test]
-        public async Task SuccessfulTokenUpdate()
+        public async Task SuccessLogin()
         {
             // Arrange
             User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
@@ -41,54 +42,49 @@ namespace Notes.ApplicationTests.Users
             _jwtTokensServiceMock
                 .Setup(tg => tg.GenerateRefrechToken(It.IsAny<int>()))
                 .Returns(Helper.CreateRandomStr(256));
-            _jwtTokensServiceMock
-                .Setup(tg => tg.TokenIsValid(It.IsAny<string>()))
-                .Returns(true);
-            var command = CreateCommand(savedUser.Id, savedUser.RefreshToken);
+            var command = CreateCommand(savedUser.Login, savedUser.Password);
 
             // Act
-            var tokens = await _handler.Handle(command, CancellationToken.None);
+            var getedTokens = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(tokens);
-                Assert.IsNotNull(tokens.AssessToken);
-                Assert.IsNotNull(tokens.RefreshToken);
+                Assert.IsNotNull(getedTokens);
+                Assert.IsNotNull(getedTokens.AssessToken);
+                Assert.IsNotNull(getedTokens.RefreshToken);
             });
         }
 
         [Test]
-        public async Task UserNotFoundException()
+        public async Task UserNotFundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(1);
-            _jwtTokensServiceMock
-                .Setup(jt => jt.TokenIsValid(It.IsAny<string>()))
-                .Returns(true);
-            var command = CreateCommand(notSavedUser.Id, notSavedUser.RefreshToken);
+            var command = CreateCommand(notSavedUser.Login, notSavedUser.Password);
 
             // Act / Assert
             Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Test]
-        public void TokenNotValidException()
+        public async Task InvalidPasswordException()
         {
             // Arrange
             User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
-            string notValidRefreshToken = Helper.CreateRandomStr(256);
-            var command = CreateCommand(savedUser.Id, notValidRefreshToken);
+            User notSavedUser = Helper.CreateUserOfNumber(2);
+            var command = CreateCommand(savedUser.Login, notSavedUser.Password);
 
             // Act / Assert
-            Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<InvalidLoginOrPasswordException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
-        UpdateTokensCommand CreateCommand(int userId, string refreshToken) =>
-            new UpdateTokensCommand()
+        LoginUserCommand CreateCommand(string login, string password) =>
+            new LoginUserCommand()
             {
-                UserId = userId,
-                RefreshToken = refreshToken
+                Login = login,
+                Password = password
             };
+
     }
 }

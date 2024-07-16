@@ -23,4 +23,9 @@
     <ProjectReference Include="..\Notes.Persistence\Notes.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Persistence\" />
+    <Folder Include="WebApi\" />
+  </ItemGroup>
+
 </Project>
