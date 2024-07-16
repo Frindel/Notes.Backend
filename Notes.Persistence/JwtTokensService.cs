@@ -37,7 +37,7 @@ namespace Notes.Persistence
             return CreateToken(1, _refreshTokenLiveTimeSeconds);
         }
 
-        public string CreateToken(int userId, int liveTimeSeconds)
+        private string CreateToken(int userId, int liveTimeSeconds)
         {
             List<Claim> claims = new List<Claim>()
             {
@@ -56,8 +56,6 @@ namespace Notes.Persistence
             return token;
         }
 
-       
-
         public int GetUserIdFromToken(string jwtToken)
         {
             if (!TokenIsValid(jwtToken))
@@ -75,7 +73,7 @@ namespace Notes.Persistence
             {
                 return ValidateToken(jwtToken);
             }
-            catch (SecurityTokenInvalidAudienceException)
+            catch (SecurityTokenException)
             {
                 return false;
             }
