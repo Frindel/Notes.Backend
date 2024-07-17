@@ -20,11 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Notes.Persistence\Notes.Persistence.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="WebApi\" />
+    <ProjectReference Include="..\Notes.WebApi\Notes.WebApi.csproj" />
   </ItemGroup>
 
 </Project>
