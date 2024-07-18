@@ -6,8 +6,6 @@
 
         public string GenerateRefrechToken(int userId);
 
-        public int GetUserIdFromToken(string jwtToken);
-
         public bool TokenIsValid(string jwtToken);
     }
 }

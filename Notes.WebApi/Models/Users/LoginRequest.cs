@@ -2,7 +2,7 @@
 
 namespace Notes.WebApi.Models.Users
 {
-    public class RegisterUserRequest
+    public class LoginRequest
     {
         [Required]
         public string Login { get; set; } = null!;

@@ -1,5 +1,7 @@
-﻿using Notes.Domain;
+﻿using Microsoft.AspNetCore.Http;
+using Notes.Domain;
 using Notes.Persistence.Data;
+using System.Security.Claims;
 using System.Text;
 
 namespace Notes.ApplicationTests.Common
@@ -98,6 +100,14 @@ namespace Notes.ApplicationTests.Common
                 User = user,
                 Categories = categories
             };
+        }
+
+        public HttpContext SetUserIdForIdentity(HttpContext context, int userId)
+        {
+            var userIdClaim = new Claim(ClaimTypes.NameIdentifier, userId.ToString());
+            var claimsIdentity = new ClaimsIdentity(new[] { userIdClaim });
+            context.User.AddIdentity(claimsIdentity);
+            return context;
         }
     }
 }

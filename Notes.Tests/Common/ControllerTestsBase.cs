@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Notes.Application.Common.Behaviors;
 using Notes.Application.Common.Helpers;
 using Notes.Application.Common.Mapping;
@@ -18,17 +19,10 @@ namespace Notes.Tests.Common
         where TypeController : BaseController
     {
         readonly Assembly _applicationLevelAssembly;
-        const string _tokensSecret = "fq2p089bsd-few22-4aw230923rasjdf_wfwo317098";
-        const string _tokensIssuer = "notes_issuer";
-        const string _tokensAudience = "notes_issuer";
 
-        int _accessTokenLiveTime, _refreshTokenLiveTime;
-
-        public ControllerTestsBase(int accessTokenLiveTime = 1000, int refreshTokenLiveTime = 1000)
+        public ControllerTestsBase()
         {
             _applicationLevelAssembly = typeof(INotesContext).Assembly;
-            _accessTokenLiveTime = accessTokenLiveTime;
-            _refreshTokenLiveTime = refreshTokenLiveTime;
         }
 
         protected TypeController CreateController(DataContext dataContext)
@@ -83,14 +77,23 @@ namespace Notes.Tests.Common
             services.AddScoped<IUsersContext>(options => options.GetService<DataContext>()!);
             services.AddScoped<ICategoriesContext>(options => options.GetService<DataContext>()!);
             services.AddScoped<INotesContext>(options => options.GetService<DataContext>()!);
-            services.AddScoped<IJwtTokensService>(_ => new JwtTokensService(
-              secret: _tokensSecret,
-              issuer: _tokensIssuer,
-              audience: _tokensAudience,
-              accessTokenLiveTimeSeconds: _accessTokenLiveTime,
-              refreshTokenLiveTimeSeconds: _refreshTokenLiveTime));
-
+            services.AddScoped(_ => CreateJwtTokensServiceMoq(services));
             return services;
+        }
+
+        IJwtTokensService CreateJwtTokensServiceMoq(ServiceCollection services)
+        {
+            var jwtTokensSerivceMock = new Mock<IJwtTokensService>();
+            jwtTokensSerivceMock
+                .Setup(s=>s.TokenIsValid(It.IsAny<string>()))
+                .Returns(true);
+            jwtTokensSerivceMock
+                .Setup(s => s.GenerateAccessToken(It.IsAny<int>()))
+                .Returns(Helper.CreateRandomStr(256));
+            jwtTokensSerivceMock
+                .Setup(s => s.GenerateRefrechToken(It.IsAny<int>()))
+                .Returns(Helper.CreateRandomStr(256));
+            return jwtTokensSerivceMock.Object;
         }
     }
 }

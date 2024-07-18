@@ -30,9 +30,6 @@ namespace Notes.Application.Users.Commands.UpdateTokens
             return MapToDto(newTokens);
         }
 
-        User? GetUserByRefreshToken(string refreshToken) =>
-            _usersContext.Users.FirstOrDefault(u => u.RefreshToken == refreshToken);
-
         async Task<(string accessToken, string refreshToken)> UpdateAndSaveTokens(User user, CancellationToken cancellationToken)
         {
             var tokens = _usersHelper.CreateTokens(user.Id);

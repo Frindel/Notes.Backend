@@ -3,7 +3,6 @@ using Notes.Application.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Notes.Application.Common.Exceptions;
 
 namespace Notes.Persistence
 {
@@ -56,24 +55,13 @@ namespace Notes.Persistence
             return token;
         }
 
-        public int GetUserIdFromToken(string jwtToken)
-        {
-            if (!TokenIsValid(jwtToken))
-                throw new ValidationException("JWT token is not valid");
-
-            var parsedToken = _jwtHeandler.ReadJwtToken(jwtToken);
-            var userId = int.Parse(parsedToken.Claims.First(c => c.Type == _idPropertyName).Value);
-
-            return userId;
-        }
-
         public bool TokenIsValid(string jwtToken)
         {
             try
             {
                 return ValidateToken(jwtToken);
             }
-            catch (SecurityTokenException)
+            catch (Exception)
             {
                 return false;
             }

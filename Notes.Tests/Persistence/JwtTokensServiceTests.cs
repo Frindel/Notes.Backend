@@ -1,5 +1,4 @@
-﻿using Notes.Application.Common.Exceptions;
-using Notes.ApplicationTests.Common;
+﻿using Notes.ApplicationTests.Common;
 using Notes.Domain;
 using Notes.Persistence;
 
@@ -41,22 +40,6 @@ namespace Notes.Tests.Persistence
         }
 
         [Test]
-        public void GetingUserIdFromToken()
-        {
-            // Arrange
-            int accessTokenLive = 1000;
-            int refreshTokenLive = 1000;
-            var jwtService = CreateService(accessTokenLive, refreshTokenLive);
-
-            // Act
-            string accessToken = jwtService.GenerateAccessToken(_targetUser.Id);
-            int userIdFromToken = jwtService.GetUserIdFromToken(accessToken);
-
-            // Accert
-            Assert.That(_targetUser.Id, Is.EqualTo(userIdFromToken));
-        }
-
-        [Test]
         public void CheckingValidityFfToken()
         {
 
@@ -85,9 +68,10 @@ namespace Notes.Tests.Persistence
             // Act
             string accessToken = jwtService.GenerateAccessToken(_targetUser.Id);
             Thread.Sleep(2000);
+            bool tokenIsValid = jwtService.TokenIsValid(accessToken);
 
             // Assert
-            Assert.Throws<ValidationException>(() => jwtService.GetUserIdFromToken(accessToken));
+            Assert.IsFalse(tokenIsValid);
         }
 
 
