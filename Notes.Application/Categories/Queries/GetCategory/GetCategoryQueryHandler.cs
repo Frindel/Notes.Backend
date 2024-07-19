@@ -25,6 +25,8 @@ namespace Notes.Application.Categories.Queries.GetCategory
 		}
 		public async Task<CategoryDto> Handle(GetCategoryQuery request, CancellationToken cancellationToken)
 		{
+			var users = _usersContext.Users.ToList();
+
 			User selectedUser = await _usersHelper.GetUserByIdAsync(request.UserId);
 			Category selectedCategory = await GetCategoryById(request.CategoryId, selectedUser);
 			return MapToDto(selectedCategory);
