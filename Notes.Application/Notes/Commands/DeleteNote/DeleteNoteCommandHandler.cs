@@ -5,7 +5,7 @@ using Notes.Domain;
 
 namespace Notes.Application.Notes.Commands.DeleteNote
 {
-    public class DeleteNoteCommandHandler : IRequestHandler<DeleteNoteCommand>
+    public class DeleteNoteCommandHandler : IRequestHandler<DeleteNoteCommand, int>
     {
         readonly UsersHelper _usersHelper;
         readonly NotesHelper _notesHelper;
@@ -18,11 +18,12 @@ namespace Notes.Application.Notes.Commands.DeleteNote
             _notesHelper = notesHelper;
             _notesContext = notesContex;
         }
-        public async Task Handle(DeleteNoteCommand request, CancellationToken cancellationToken)
+        public async Task<int> Handle(DeleteNoteCommand request, CancellationToken cancellationToken)
         {
             User user = await _usersHelper.GetUserByIdAsync(request.UserId);
             Note deletedNote = await _notesHelper.GetNoteByIdAsync(request.NoteId, user.Id);
             await DeleteNoteAsync(deletedNote, cancellationToken);
+            return deletedNote.PersonalId;
         }
 
         async Task DeleteNoteAsync(Note deletedNote, CancellationToken cancellationToken)

@@ -20,6 +20,7 @@ namespace Notes.Persistence.Data.DbEntitiesConfig
         {
             builder.ToTable("notes");
             builder.HasKey(t => new { t.Id, t.PersonalId });
+            builder.Property(n => n.Id).ValueGeneratedOnAdd();
 
             builder.Property(u => u.Id)
                 .HasColumnName("note_id");
