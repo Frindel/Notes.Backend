@@ -17,10 +17,10 @@ namespace Notes.Persistence.Data.DbEntitiesConfig
         {
             builder.ToTable("categories");
             builder.HasKey(t => new { t.Id, t.PersonalId});
-            builder.Property(c => c.Id).ValueGeneratedOnAdd();
 
             builder.Property(c => c.Id)
-                .HasColumnName("category_id");
+                .HasColumnName("category_id")
+                .ValueGeneratedOnAdd();
 
             builder.HasOne(c => c.User);
 

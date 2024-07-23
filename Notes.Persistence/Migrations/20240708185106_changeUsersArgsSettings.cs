@@ -13,7 +13,7 @@ namespace Notes.Persistence.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "refresh_token",
                 table: "users",
-                nullable: false,
+                nullable: true,
                 oldClrType: typeof(string),
                 oldNullable: false
                 );
@@ -25,7 +25,7 @@ namespace Notes.Persistence.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "refresh_token",
                 table: "users",
-                nullable: true,
+                nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true
                 );
