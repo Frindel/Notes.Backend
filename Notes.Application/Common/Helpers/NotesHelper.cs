@@ -18,7 +18,8 @@ namespace Notes.Application.Common.Helpers
 
         public Task<Note> GetNoteByIdAsync(int noteId, int forUserId) =>
              GetEntityByAsync(
-                _notes.Where(c => c.PersonalId == noteId && c.User.Id == forUserId),
+                _notes.Where(c => c.PersonalId == noteId && c.User.Id == forUserId)
+                    .Include(n=>n.Categories),
                 typeof(NoteNotFoundException),
                 $"note with id {noteId} and user id {forUserId} does not found");
 

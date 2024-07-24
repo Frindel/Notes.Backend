@@ -19,8 +19,7 @@ namespace Notes.Persistence
             services.AddScoped<INotesContext>(options => options.GetService<DataContext>()!);
 
             AddJwtTokensService(services, configuration);
-
-
+            
             return services;
         }
 
@@ -44,7 +43,7 @@ namespace Notes.Persistence
                issuer: configuration["Jwt:Issuer"]!,
                audience: configuration["Jwt:Audience"]!,
                accessTokenLiveTimeSeconds: int.Parse(configuration["Jwt:AccessTokenValidity"]!),
-               refreshTokenLiveTimeSeconds: int.Parse(configuration["Jwt:AccessTokenValidity"]!)));
+               refreshTokenLiveTimeSeconds: int.Parse(configuration["Jwt:RefreshTokenValidity"]!)));
         }
     }
 }

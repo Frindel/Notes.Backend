@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Notes.Application.Categories.Commands.CreateCategory;
 using Notes.Application.Categories.Queries.GetAllCategories;
 using Notes.Application.Categories.Queries.GetCategory;
@@ -6,6 +7,7 @@ using Notes.WebApi.Models.Categories;
 
 namespace Notes.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("/api/categories")]
     public class CategoriesController : BaseController

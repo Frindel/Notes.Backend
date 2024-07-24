@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Notes.Application.Notes.Commands.CreateNote;
 using Notes.Application.Notes.Commands.DeleteNote;
 using Notes.Application.Notes.Commands.EditNote;
@@ -8,6 +9,7 @@ using Notes.WebApi.Models.Notes;
 
 namespace Notes.WebApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("/api/notes")]
     public class NotesController : BaseController
@@ -23,7 +25,7 @@ namespace Notes.WebApi.Controllers
             return Ok(notes.Notes);
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("{noteId}")]
         public async Task<IActionResult> GetById([FromRoute] int noteId)
         {
             var query = new GetNoteQuery()
@@ -44,7 +46,7 @@ namespace Notes.WebApi.Controllers
                 Name = request.Name,
                 Description = request.Description,
                 Time = request.Time,
-                CategoriesIds = request.CategoriesIds
+                CategoriesIds = request.CategoriesIds ?? []
             };
             var createdNote = await Mediator.Send(command);
             return Ok(createdNote);
@@ -60,7 +62,7 @@ namespace Notes.WebApi.Controllers
                 Name = request.Name,
                 Description = request.Description,
                 Time = request.Time,
-                CategoriesIds = request.CategoriesIds
+                CategoriesIds = request.CategoriesIds ?? []
             };
             var changedNote = await Mediator.Send(command);
             return Ok(changedNote);

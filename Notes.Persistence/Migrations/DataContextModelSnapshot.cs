@@ -46,8 +46,11 @@ namespace Notes.Persistence.Migrations
             modelBuilder.Entity("Notes.Domain.Category", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("category_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PersonalId")
                         .HasColumnType("integer")
@@ -72,8 +75,11 @@ namespace Notes.Persistence.Migrations
             modelBuilder.Entity("Notes.Domain.Note", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("note_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PersonalId")
                         .HasColumnType("integer")
@@ -131,7 +137,6 @@ namespace Notes.Persistence.Migrations
                         .HasColumnName("password");
 
                     b.Property<string>("RefreshToken")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("text")
                         .HasColumnName("refresh_token");

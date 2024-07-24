@@ -9,9 +9,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Notes.WebApi/Notes.WebApi.csproj", "Notes.WebApi/"]
-RUN dotnet restore "./Notes.WebApi/./Notes.WebApi.csproj"
-COPY . .
+COPY  . .
+RUN dotnet restore "./Notes.WebApi/Notes.WebApi.csproj"
 WORKDIR "/src/Notes.WebApi"
 RUN dotnet build "./Notes.WebApi.csproj" -c $BUILD_CONFIGURATION -o /app/build
 

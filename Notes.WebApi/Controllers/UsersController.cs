@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Notes.Application.Users.Commands.LoginUser;
 using Notes.Application.Users.Commands.RegisterUser;
 using Notes.Application.Users.Commands.UpdateTokens;
@@ -35,6 +36,7 @@ namespace Notes.WebApi.Controllers
             return Ok(tokens);
         }
 
+        [Authorize]
         [HttpPost("update-tokens")]
         public async Task<IActionResult> UpdateTokens(UpdateTokensRequest request)
         {

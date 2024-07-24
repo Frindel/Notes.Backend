@@ -1,6 +1,6 @@
-﻿using MediatR;
+﻿using System.Security.Claims;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Notes.WebApi.Controllers
 {

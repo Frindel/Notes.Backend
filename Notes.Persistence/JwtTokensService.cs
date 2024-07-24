@@ -8,7 +8,6 @@ namespace Notes.Persistence
 {
     public class JwtTokensService : IJwtTokensService
     {
-        const string _idPropertyName = "jti";
         JwtSecurityTokenHandler _jwtHeandler;
 
         readonly string _issuer, _audience;
@@ -40,7 +39,7 @@ namespace Notes.Persistence
         {
             List<Claim> claims = new List<Claim>()
             {
-                new Claim(_idPropertyName, userId.ToString())
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
              };
 
             string token = _jwtHeandler.WriteToken(new JwtSecurityToken(

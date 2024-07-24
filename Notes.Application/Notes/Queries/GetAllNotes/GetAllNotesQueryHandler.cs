@@ -32,7 +32,7 @@ namespace Notes.Application.Notes.Queries.GetAllNotes
 
         async Task<List<Note>> GetNotesFor(User user)
         {
-            List<Note> notes = await _notesContext.Notes
+            List<Note> notes = await _notesContext.Notes.Include(n=>n.Categories)
                 .Where(n => n.User.Id == user.Id)
                 .ToListAsync();
             return notes;

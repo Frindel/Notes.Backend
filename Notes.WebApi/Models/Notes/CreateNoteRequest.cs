@@ -8,5 +8,6 @@ public class CreateNoteRequest
 
     public DateTime Time { get; set; }
 
-    public List<int> CategoriesIds { get; set; } = null!;
+    
+    public List<int>? CategoriesIds { get; set; } = null!;
 }
