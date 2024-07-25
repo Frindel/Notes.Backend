@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using FluentValidation;
+using Moq;
 using Notes.Application.Categories.Commands.CreateCategory;
 using Notes.Application.Common.Exceptions;
 using Notes.Application.Common.Helpers;
@@ -62,11 +63,22 @@ namespace Notes.Tests.Application.Categories
             Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
-        public CreateCategoryCommand CreateCommand(User forUser)
+        [Test]
+        public void CreateCategory_CategoryWithThisNameAlreadyExists_ThrowsValidationException()
+        {
+            // Arrange
+            Category savedCategory = Helper.AddCategoriesWithNumbers(_context, _sevedUser, 1).First();
+            var command = CreateCommand(_sevedUser, savedCategory.Name);
+
+            // Act / assert
+            Assert.ThrowsAsync<ValidationException>(() => _handler.Handle(command, CancellationToken.None));
+        }
+
+        public CreateCategoryCommand CreateCommand(User forUser, string categoryName = "new category")
         {
             return new CreateCategoryCommand()
             {
-                CategoryName = "new category",
+                CategoryName = categoryName,
                 UserId = forUser.Id
             };
         }
