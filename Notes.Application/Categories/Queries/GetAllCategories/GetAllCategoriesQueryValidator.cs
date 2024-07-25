@@ -6,7 +6,7 @@ namespace Notes.Application.Categories.Queries.GetAllCategories
     {
         public GetAllCategoriesQueryValidator()
         {
-            RuleFor(q => q.UserId).Must(ui => ui > 0);
+            RuleFor(q => q.UserId).Must(ui => ui > 0).WithMessage("user id < 0");
         }
     }
 }

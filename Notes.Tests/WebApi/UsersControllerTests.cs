@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Notes.Application.Common.Exceptions;
 using Notes.Application.Users.Dto;
 using Notes.Domain;

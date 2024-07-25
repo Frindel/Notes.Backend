@@ -1,5 +1,5 @@
-﻿using MediatR;
-using Notes.Application.Common.Exceptions;
+﻿using FluentValidation;
+using MediatR;
 using Notes.Application.Common.Helpers;
 using Notes.Application.Interfaces;
 using Notes.Application.Users.Dto;

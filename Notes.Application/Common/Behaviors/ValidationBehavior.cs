@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using MediatR;
-using ValidationException = Notes.Application.Common.Exceptions.ValidationException;
 
 namespace Notes.Application.Common.Behaviors
 {

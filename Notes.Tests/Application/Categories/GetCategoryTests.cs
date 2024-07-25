@@ -59,7 +59,7 @@ namespace Notes.Tests.Application.Categories
             var query = CreateQuery(_savedCategory, notSavedUser);
 
             // Act / Accert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
         [Test]
@@ -70,7 +70,7 @@ namespace Notes.Tests.Application.Categories
             var query = CreateQuery(notSavedCategory, _savedUser);
 
             // Act / Accert
-            Assert.ThrowsAsync<CategoryNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
         public GetCategoryQuery CreateQuery(Category category, User forUser)

@@ -62,7 +62,7 @@ namespace Notes.Tests.Application.Categories
             var query = CreateQuery(notSavedUser);
 
             // Act / Accert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
         public GetAllCategoriesQuery CreateQuery(User forUser)

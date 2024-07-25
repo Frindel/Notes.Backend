@@ -66,7 +66,7 @@ namespace Notes.Tests.Application.Notes
             var query = CreateQuery(notSavedUser, notSavedNote);
 
             // Act / Assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace Notes.Tests.Application.Notes
             var query = CreateQuery(_savedUser, notSavedNote);
 
             // Act / Assert
-            Assert.ThrowsAsync<NoteNotFoundException>(() => _handler.Handle(query, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
         GetNoteQuery CreateQuery(User user, Note note)

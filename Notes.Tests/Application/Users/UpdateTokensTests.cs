@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using FluentValidation;
+using Moq;
 using Notes.Application.Common.Exceptions;
 using Notes.Application.Common.Helpers;
 using Notes.Application.Interfaces;
@@ -69,7 +70,7 @@ namespace Notes.Tests.Application.Users
             var command = CreateCommand(notSavedUser.Id, notSavedUser.RefreshToken);
 
             // Act / Assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Test]

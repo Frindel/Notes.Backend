@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Notes.Application.Categories.Dto;
 using Notes.Application.Common.Exceptions;
 using Notes.Domain;
@@ -97,7 +98,7 @@ namespace Notes.Tests.WebApi
             Category category = Helper.CreateCategoryOfNumber(1, _notSavedUser);
 
             // Act / assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _controller.GetById(category.PersonalId));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.GetById(category.PersonalId));
         }
 
         [Test]
@@ -108,7 +109,7 @@ namespace Notes.Tests.WebApi
             Category notSavedCategory = Helper.CreateCategoryOfNumber(1, _savedUser);
 
             // Act / assert
-            Assert.ThrowsAsync<CategoryNotFoundException>(() => _controller.GetById(notSavedCategory.PersonalId));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.GetById(notSavedCategory.PersonalId));
         }
 
         [Test]
@@ -175,7 +176,7 @@ namespace Notes.Tests.WebApi
             };
 
             // Act / assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _controller.Create(request));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.Create(request));
 
         }
     }

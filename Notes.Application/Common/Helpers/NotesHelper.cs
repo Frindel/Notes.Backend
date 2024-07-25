@@ -20,7 +20,7 @@ namespace Notes.Application.Common.Helpers
              GetEntityByAsync(
                 _notes.Where(c => c.PersonalId == noteId && c.User.Id == forUserId)
                     .Include(n=>n.Categories),
-                typeof(NoteNotFoundException),
+                typeof(NotFoundException),
                 $"note with id {noteId} and user id {forUserId} does not found");
 
         public async Task<Note> SaveNoteAsync(Note note, CancellationToken cancellationToken)

@@ -65,7 +65,7 @@ namespace Notes.Tests.Application.Notes
             var command = CreateCommand(notSavedUser);
 
             // Act / accert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace Notes.Tests.Application.Notes
             var command = CreateCommand(_savedUser, new List<Category>() { notSavedCategory });
 
             // Act / accert
-            Assert.ThrowsAsync<CategoryNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         CreateNoteCommand CreateCommand(User forUser, List<Category> withCategories = null!)

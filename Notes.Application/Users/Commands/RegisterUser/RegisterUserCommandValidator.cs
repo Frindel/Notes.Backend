@@ -6,8 +6,8 @@ namespace Notes.Application.Users.Commands.RegisterUser
     {
         public RegisterUserCommandValidator()
         {
-            RuleFor(c => c.Login).NotNull();
-            RuleFor(c => c.Password).NotNull();
+            RuleFor(c => c.Login).NotNull().WithMessage("login is null");
+            RuleFor(c => c.Password).NotNull().WithMessage("password is null");
         }
     }
 }

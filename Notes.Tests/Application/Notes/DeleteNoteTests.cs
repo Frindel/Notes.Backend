@@ -57,7 +57,7 @@ namespace Notes.Tests.Application.Notes
             var command = CreateCommand(notSavedUser, notSavedNote);
 
             // Act / Accert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace Notes.Tests.Application.Notes
             var command = CreateCommand(_savedUser, notSavedNote);
 
             // Act / Accert
-            Assert.ThrowsAsync<NoteNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         DeleteNoteCommand CreateCommand(User user, Note note)

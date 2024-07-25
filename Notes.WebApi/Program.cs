@@ -6,7 +6,7 @@ using Notes.Application.Common.Mapping;
 using Notes.Persistence;
 using System.Reflection;
 using System.Text;
-using Microsoft.AspNetCore.Diagnostics;
+using Notes.WebApi.Middleware;
 
 namespace Notes.WebApi
 {
@@ -127,7 +127,8 @@ namespace Notes.WebApi
                     .AllowAnyMethod());
 
             app.UseHttpsRedirection();
-            app.UseAuthorization();
+            app.UseMiddleware<ExceptionsHandlerMiddleware>();
+            app.UseAuthorization(); 
             app.MapControllers();
 
             return app;

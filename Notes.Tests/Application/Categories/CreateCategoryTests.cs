@@ -59,7 +59,7 @@ namespace Notes.Tests.Application.Categories
             var command = CreateCommand(notSavedUser);
 
             // Act / Assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         public CreateCategoryCommand CreateCommand(User forUser)

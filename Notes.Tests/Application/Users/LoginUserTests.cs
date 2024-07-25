@@ -6,7 +6,6 @@ using Notes.Application.Users.Commands.LoginUser;
 using Notes.ApplicationTests.Common;
 using Notes.Domain;
 using Notes.Persistence.Data;
-using NUnit.Framework.Internal;
 
 namespace Notes.Tests.Application.Users
 {
@@ -64,7 +63,7 @@ namespace Notes.Tests.Application.Users
             var command = CreateCommand(notSavedUser.Login, notSavedUser.Password);
 
             // Act / Assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Test]

@@ -17,9 +17,9 @@ namespace Notes.Application.Common.Helpers
         }
 
         public Task<Category> GetCategoryByIdAsync(int categoryId, int forUserId) =>
-             GetEntityByAsync(
+            GetEntityByAsync(
                 _categories.Where(c => c.PersonalId == categoryId && c.User.Id == forUserId),
-                typeof(CategoryNotFoundException),
+                typeof(NotFoundException),
                 $"Category with id {categoryId} and user id {forUserId} does not found");
 
 
@@ -30,7 +30,8 @@ namespace Notes.Application.Common.Helpers
             if (category.User == null)
                 throw new ArgumentException(nameof(category.User));
 
-            return await SaveEntityAsync(category, _categories, () => _categoriesContext.SaveChangesAsync(cancellationToken));
+            return await SaveEntityAsync(category, _categories,
+                () => _categoriesContext.SaveChangesAsync(cancellationToken));
         }
 
         public async Task<List<Category>> GetCategoriesByIdsAsync(List<int> categoriesIds, int targetUserId)
@@ -41,9 +42,11 @@ namespace Notes.Application.Common.Helpers
             if (selectedCategories.Count != categoriesIds.Count)
             {
                 var selectedCategoryIds = new HashSet<int>(selectedCategories.Select(c => c.Id));
-                List<int> notExistentCategoriesIds = categoriesIds.Where(c => !selectedCategoryIds.Contains(c)).ToList();
+                List<int> notExistentCategoriesIds =
+                    categoriesIds.Where(c => !selectedCategoryIds.Contains(c)).ToList();
 
-                throw new CategoryNotFoundException($"Category with ids: {string.Join(',', notExistentCategoriesIds)} not found");
+                throw new NotFoundException(
+                    $"Category with ids: {string.Join(',', notExistentCategoriesIds)} not found");
             }
 
             return selectedCategories;

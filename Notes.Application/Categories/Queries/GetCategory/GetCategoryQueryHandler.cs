@@ -37,7 +37,7 @@ namespace Notes.Application.Categories.Queries.GetCategory
 			Category? selectedCategory = await _categoriesContext.Categories
 				.FirstOrDefaultAsync(c => c.User.Id == forUser.Id && c.PersonalId == categoryId);
 			if (selectedCategory == null)
-				throw new CategoryNotFoundException($"category with id = {categoryId} not found");
+				throw new NotFoundException($"category with id = {categoryId} not found");
 
 			return selectedCategory;
 		}

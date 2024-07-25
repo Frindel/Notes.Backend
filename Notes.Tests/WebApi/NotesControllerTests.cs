@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Notes.Application.Common.Exceptions;
 using Notes.Application.Notes.Dto;
@@ -110,7 +111,7 @@ namespace Notes.Tests.WebApi
             Note notSavedNote = Helper.CreateNoteOfNumber(1, _notSavedUser);
 
             // Act / Assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _controller.GetById(notSavedNote.PersonalId));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.GetById(notSavedNote.PersonalId));
         }
 
         [Test]
@@ -121,7 +122,7 @@ namespace Notes.Tests.WebApi
             Note notSavedNote = Helper.CreateNoteOfNumber(1, _savedUser);
 
             // Act / Assert
-            Assert.ThrowsAsync<NoteNotFoundException>(() => _controller.GetById(notSavedNote.PersonalId));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.GetById(notSavedNote.PersonalId));
         }
 
         #endregion
@@ -189,7 +190,7 @@ namespace Notes.Tests.WebApi
             var request = CreateAddingRequest(addedNote);
 
             // Act / assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _controller.Create(request));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.Create(request));
         }
 
         [Test]
@@ -202,7 +203,7 @@ namespace Notes.Tests.WebApi
             var request = CreateAddingRequest(addedNote);
 
             // Act / assert
-            Assert.ThrowsAsync<CategoryNotFoundException>(() => _controller.Create(request));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.Create(request));
         }
 
         CreateNoteRequest CreateAddingRequest(Note addedNote) =>
@@ -316,7 +317,7 @@ namespace Notes.Tests.WebApi
             var request = CreateChangeRequest(editableNote);
 
             // Act / assert
-            Assert.ThrowsAsync<NoteNotFoundException>(() => _controller.Edit(request));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.Edit(request));
         }
 
         [Test]
@@ -330,7 +331,7 @@ namespace Notes.Tests.WebApi
             request.CategoriesIds = [notSavedCategory.Id];
 
             // Act / assert
-            Assert.ThrowsAsync<CategoryNotFoundException>(() => _controller.Edit(request));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.Edit(request));
         }
 
         EditNoteRequest CreateChangeRequest(Note editableNote) =>
@@ -397,7 +398,7 @@ namespace Notes.Tests.WebApi
             Note deletedNote = Helper.AddNotesWithNumbers(_context, _savedUser, null!, 1).First();
 
             // Act / assert
-            Assert.ThrowsAsync<UserNotFoundException>(() => _controller.Delete(deletedNote.PersonalId));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.Delete(deletedNote.PersonalId));
         }
 
         [Test]
@@ -408,7 +409,7 @@ namespace Notes.Tests.WebApi
             Note deletedNote = Helper.CreateNoteOfNumber(1, _savedUser);
 
             // Act / assert
-            Assert.ThrowsAsync<NoteNotFoundException>(() => _controller.Delete(deletedNote.PersonalId));
+            Assert.ThrowsAsync<NotFoundException>(() => _controller.Delete(deletedNote.PersonalId));
         }
 
         #endregion

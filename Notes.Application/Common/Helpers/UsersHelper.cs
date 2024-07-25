@@ -20,11 +20,11 @@ namespace Notes.Application.Common.Helpers
 
         public Task<User> GetUserByIdAsync(int userId) =>
             GetEntityByAsync(_users.Where(u => u.Id == userId),
-                typeof(UserNotFoundException),
+                typeof(NotFoundException),
                 $"user with id {userId} does not found");
         public Task<User> GetUserByLoginAsync(string login) =>
             GetEntityByAsync(_users.Where(u => u.Login == login),
-                typeof(UserNotFoundException),
+                typeof(NotFoundException),
                 "invalid user login or password");
 
         public async Task<User> SaveUserAsync(User user, CancellationToken cancellationToken)

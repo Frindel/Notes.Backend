@@ -6,7 +6,7 @@ public class DeleteNoteCommandValidator : AbstractValidator<DeleteNoteCommand>
 {
     public DeleteNoteCommandValidator()
     {
-        RuleFor(c => c.UserId).Must(ui => ui > 0);
-        RuleFor(c => c.NoteId).Must(ni => ni > 0);
+        RuleFor(c => c.UserId).Must(ui => ui > 0).WithMessage("user id < 0");
+        RuleFor(c => c.NoteId).Must(ni => ni > 0).WithMessage("note id < 0");
     }
 }
