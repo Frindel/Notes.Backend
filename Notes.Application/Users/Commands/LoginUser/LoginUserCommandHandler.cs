@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Notes.Application.Common.Exceptions;
 using Notes.Application.Common.Helpers;
-using Notes.Application.Interfaces;
 using Notes.Application.Users.Dto;
 using Notes.Domain;
 
@@ -12,6 +10,8 @@ namespace Notes.Application.Users.Commands.LoginUser
     {
         readonly UsersHelper _usersHelper;
 
+        private CancellationToken _cancellationToken = CancellationToken.None;
+
         public LoginUserCommandHandler(UsersHelper usersHelper)
         {
             _usersHelper = usersHelper;
@@ -19,11 +19,12 @@ namespace Notes.Application.Users.Commands.LoginUser
 
         public async Task<TokensDto> Handle(LoginUserCommand request, CancellationToken cancellationToken)
         {
+            _cancellationToken = cancellationToken;
             User loginedUser = await _usersHelper.GetUserByLoginAsync(request.Login);
             if (!IsLoginAndPasswordValid(request, loginedUser))
                 throw new InvalidLoginOrPasswordException("invalid user login or password");
 
-            var tokens = await CreateAndSaveTokensAsync(loginedUser, cancellationToken);
+            var tokens = await CreateAndSaveTokensAsync(loginedUser);
             return MapToDto(tokens);
         }
 
@@ -32,17 +33,17 @@ namespace Notes.Application.Users.Commands.LoginUser
             return request.Login == user.Login && request.Password == user.Password;
         }
 
-        async Task<(string accessToken, string refreshToken)> CreateAndSaveTokensAsync(User user, CancellationToken token)
+        async Task<(string accessToken, string refreshToken)> CreateAndSaveTokensAsync(User user)
         {
             var tokens = _usersHelper.CreateTokens(user.Id);
-            await SaveRefreshTokenAsync(tokens.refreshToken, user, token);
+            await SaveRefreshTokenAsync(tokens.refreshToken, user);
             return tokens;
         }
 
-        async Task SaveRefreshTokenAsync(string refreshToken, User user, CancellationToken cancellationToken)
+        async Task SaveRefreshTokenAsync(string refreshToken, User user)
         {
             user.RefreshToken = refreshToken;
-            await _usersHelper.SaveUserAsync(user, cancellationToken);
+            await _usersHelper.SaveUserAsync(user, _cancellationToken);
         }
 
         TokensDto MapToDto((string accessToken, string refreshToken) tokens) =>

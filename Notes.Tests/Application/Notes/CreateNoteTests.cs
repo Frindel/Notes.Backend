@@ -39,7 +39,7 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public async Task SuccessCreatedNote()
+        public async Task CreateNote_Success()
         {
             // Arrange
             var command = CreateCommand(_savedUser, _savedCategories);
@@ -53,29 +53,30 @@ namespace Notes.Tests.Application.Notes
                 Assert.IsNotNull(createdNote, "result is null");
                 Assert.IsNotNull(createdNote.Name, "created note name is not sated");
                 Assert.IsNotNull(createdNote.Description, "created note description is not sated");
-                Assert.IsTrue(createdNote.Categories.Count() == command.CategoriesIds.Count(), "sated categories is not saved");
+                Assert.IsTrue(createdNote.Categories.Count() == command.CategoriesIds.Count(),
+                    "sated categories is not saved");
             });
         }
 
         [Test]
-        public void UserNotFoundException()
+        public void CreateNote_InvalidUser_ThrowsNotFoundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(2);
             var command = CreateCommand(notSavedUser);
 
-            // Act / accert
+            // Act / assert
             Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Test]
-        public void CategoryNotFoundException()
+        public void CreateNote_InvalidCategory_ThrowsNotFoundException()
         {
             // Arrange
             Category notSavedCategory = Helper.CreateCategoryOfNumber(3, _savedUser);
-            var command = CreateCommand(_savedUser, new List<Category>() { notSavedCategory });
+            var command = CreateCommand(_savedUser, [notSavedCategory]);
 
-            // Act / accert
+            // Act / assert
             Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 

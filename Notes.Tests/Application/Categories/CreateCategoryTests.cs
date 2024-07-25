@@ -36,7 +36,7 @@ namespace Notes.Tests.Application.Categories
         }
 
         [Test]
-        public async Task SuccessCategoryCreated()
+        public async Task CreateCategory_Success()
         {
             // Arrange
             var command = CreateCommand(_sevedUser);
@@ -53,7 +53,7 @@ namespace Notes.Tests.Application.Categories
         }
 
         [Test]
-        public async Task UserNotFoundException()
+        public async Task CreateCategory_InvalidUser_ThrowsNotFoundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(2);

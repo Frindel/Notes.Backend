@@ -31,7 +31,7 @@ namespace Notes.Tests.Application.Users
         }
 
         [Test]
-        public async Task SuccessLogin()
+        public async Task Login_Success()
         {
             // Arrange
             User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
@@ -44,19 +44,19 @@ namespace Notes.Tests.Application.Users
             var command = CreateCommand(savedUser.Login, savedUser.Password);
 
             // Act
-            var getedTokens = await _handler.Handle(command, CancellationToken.None);
+            var gettedTokens = await _handler.Handle(command, CancellationToken.None);
 
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(getedTokens);
-                Assert.IsNotNull(getedTokens.AssessToken);
-                Assert.IsNotNull(getedTokens.RefreshToken);
+                Assert.IsNotNull(gettedTokens);
+                Assert.IsNotNull(gettedTokens.AssessToken);
+                Assert.IsNotNull(gettedTokens.RefreshToken);
             });
         }
 
         [Test]
-        public async Task UserNotFundException()
+        public async Task Login_InvalidUser_ThrowsNotFundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(1);
@@ -67,7 +67,7 @@ namespace Notes.Tests.Application.Users
         }
 
         [Test]
-        public async Task InvalidPasswordException()
+        public async Task Login_InvalidPassword_ThrowsInvalidLoginOrPasswordException()
         {
             // Arrange
             User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
@@ -84,6 +84,5 @@ namespace Notes.Tests.Application.Users
                 Login = login,
                 Password = password
             };
-
     }
 }

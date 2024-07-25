@@ -25,6 +25,7 @@ namespace Notes.Tests.Application.Categories
             _savedCategories = Helper.AddCategoriesWithNumbers(_context, _savedUser, 1, 2);
             _handler = CreateHandler();
         }
+
         GetAllCategoriesQueryHandler CreateHandler()
         {
             var jwtTokensServiceMock = new Mock<IJwtTokensService>();
@@ -35,7 +36,7 @@ namespace Notes.Tests.Application.Categories
         }
 
         [Test]
-        public async Task SuccessfulGettingCategories()
+        public async Task GetAllCategories_Success()
         {
             // Arrange
             var query = CreateQuery(_savedUser);
@@ -55,7 +56,7 @@ namespace Notes.Tests.Application.Categories
         }
 
         [Test]
-        public void UserNotFoundException()
+        public void GetAllCategories_InvalidUser_ThrowsNotFoundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(2);

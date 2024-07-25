@@ -39,36 +39,37 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public void SuccessfulDeleteNote()
+        public void DeleteNote_Success()
         {
             // Arrange
             var command = CreateCommand(_savedUser, _savedNote);
 
-            // Act / Accert
+            // Act / Assert
             Assert.IsTrue(_handler.Handle(command, CancellationToken.None).IsCompletedSuccessfully);
-            Assert.IsTrue(_context.Categories.Count() == 0); // проверка удаления категорий при их отсутсвии в других заметках
+            Assert.IsTrue(_context.Categories.Count() ==
+                          0); // проверка удаления категорий при их отсутсвии в других заметках
         }
 
         [Test]
-        public void UserIsNotFoundException()
+        public void DeleteNote_InvalidUser_ThrowsNotFoundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(2);
             Note notSavedNote = Helper.CreateNoteOfNumber(2, notSavedUser);
             var command = CreateCommand(notSavedUser, notSavedNote);
 
-            // Act / Accert
+            // Act / Assert
             Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 
         [Test]
-        public void NoteIsNotFoundException()
+        public void DeleteNote_InvalidNote_ThrowsNotFoundException()
         {
             // Arrange
             Note notSavedNote = Helper.CreateNoteOfNumber(2, _savedUser);
             var command = CreateCommand(_savedUser, notSavedNote);
 
-            // Act / Accert
+            // Act / Assert
             Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         }
 

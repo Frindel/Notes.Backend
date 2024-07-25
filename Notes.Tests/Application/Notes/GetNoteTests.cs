@@ -38,7 +38,7 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public async Task SuccessfullGettingNotes()
+        public async Task GetNote_Success()
         {
             // Arrange
             var query = CreateQuery(_savedUser, _savedNote);
@@ -58,7 +58,7 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public void UserIsNotFoundException()
+        public void GetNote_InvalidUser_ThrowsNotFoundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(2);
@@ -70,7 +70,7 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public void NoteIsNotFoundException()
+        public void GetNote_InvalidNote_ThrowsNotFoundException()
         {
             // Arrange
             Note notSavedNote = Helper.CreateNoteOfNumber(2, _savedUser, new List<Category>());

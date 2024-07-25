@@ -13,6 +13,8 @@ namespace Notes.Application.Users.Commands.UpdateTokens
         readonly IUsersContext _usersContext;
         readonly IJwtTokensService _jwtTokens;
 
+        private CancellationToken _cancellationToken = CancellationToken.None;
+
         public UpdateTokensCommandHandler(UsersHelper usersHelper, IUsersContext users, IJwtTokensService jwtTokens)
         {
             _usersHelper = usersHelper;
@@ -22,29 +24,29 @@ namespace Notes.Application.Users.Commands.UpdateTokens
 
         public async Task<TokensDto> Handle(UpdateTokensCommand request, CancellationToken cancellationToken)
         {
+            _cancellationToken = cancellationToken;
             if (!_jwtTokens.TokenIsValid(request.RefreshToken))
                 throw new ValidationException("refresh token is not valid.");
 
             User user = await _usersHelper.GetUserByIdAsync(request.UserId);
-            var newTokens = await UpdateAndSaveTokens(user, cancellationToken);
+            var newTokens = await UpdateAndSaveTokens(user);
             return MapToDto(newTokens);
         }
 
-        async Task<(string accessToken, string refreshToken)> UpdateAndSaveTokens(User user, CancellationToken cancellationToken)
+        async Task<(string accessToken, string refreshToken)> UpdateAndSaveTokens(User user)
         {
             var tokens = _usersHelper.CreateTokens(user.Id);
-            await SaveRefreshToken(tokens.refreshToken, user, cancellationToken);
+            await SaveRefreshToken(tokens.refreshToken, user);
             return tokens;
         }
 
-        async Task SaveRefreshToken(string refreshToken, User user, CancellationToken cancellationToken)
+        async Task SaveRefreshToken(string refreshToken, User user)
         {
             user.RefreshToken = refreshToken;
-            await _usersContext.SaveChangesAsync(cancellationToken);
+            await _usersContext.SaveChangesAsync(_cancellationToken);
         }
 
         TokensDto MapToDto((string accessToken, string refreshToken) tokens) =>
             new TokensDto() { AssessToken = tokens.accessToken, RefreshToken = tokens.refreshToken };
-
     }
 }

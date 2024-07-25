@@ -20,7 +20,7 @@ namespace Notes.Tests.Persistence
         }
 
         [Test]
-        public void SuccessfullCreatingToken()
+        public void GenerateTokens_Success()
         {
             // Arange
             int accessTokenLive = 1000;
@@ -40,9 +40,8 @@ namespace Notes.Tests.Persistence
         }
 
         [Test]
-        public void CheckingValidityFfToken()
+        public void GenerateAccessToken_ExpiredTokenIsInvalid()
         {
-
             // Arrange
             int accessTokenLive = 1;
             int refreshTokenLive = 1;
@@ -58,7 +57,7 @@ namespace Notes.Tests.Persistence
         }
 
         [Test]
-        public void TokenLiveTimeValidate()
+        public void GenerateAccessToken_TokenExpiresAfterSpecifiedTime()
         {
             // Arrange
             int accessTokenLive = 1;

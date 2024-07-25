@@ -32,7 +32,7 @@ namespace Notes.Tests.Application.Users
         }
 
         [Test]
-        public async Task SuccessfulTokenUpdate()
+        public async Task UpdateTokens_Success()
         {
             // Arrange
             User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
@@ -60,7 +60,7 @@ namespace Notes.Tests.Application.Users
         }
 
         [Test]
-        public async Task UserNotFoundException()
+        public async Task UpdateTokens_InvalidUser_ThrowsNotFoundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(1);
@@ -74,7 +74,7 @@ namespace Notes.Tests.Application.Users
         }
 
         [Test]
-        public void TokenNotValidException()
+        public void UpdateTokens_InvalidRefreshToken_ThrowsValidationException()
         {
             // Arrange
             User savedUser = Helper.AddUserWithNumbers(_context, 1).First();

@@ -37,25 +37,25 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public async Task SuccessfulGetingNotes()
+        public async Task GetAllNotes_Success()
         {
             // Arrange
             var query = CreateQuery(_savedUser);
 
             // Act
-            var getedUsers = await _handler.Handle(query, CancellationToken.None);
+            var gettedUsers = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(getedUsers, "result is null");
-                Assert.IsTrue(getedUsers.Notes.Count == _savedNotes.Count,
+                Assert.IsNotNull(gettedUsers, "result is null");
+                Assert.IsTrue(gettedUsers.Notes.Count == _savedNotes.Count,
                     "number of notes in the result does not match");
             });
         }
 
         [Test]
-        public void UserNotFoundException()
+        public void GetAllNotes_InvalidUser_ThrowsNotFoundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(2);

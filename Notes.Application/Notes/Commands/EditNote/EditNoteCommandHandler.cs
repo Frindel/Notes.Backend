@@ -13,7 +13,10 @@ namespace Notes.Application.Notes.Commands.EditNote
         readonly NotesHelper _notesHelper;
         readonly IMapper _mapper;
 
-        public EditNoteCommandHandler(UsersHelper usersHelper, CategoriesHelper categoriesHelper, NotesHelper notesHelper, IMapper mapper)
+        private CancellationToken _cancellationToken = CancellationToken.None;
+
+        public EditNoteCommandHandler(UsersHelper usersHelper, CategoriesHelper categoriesHelper,
+            NotesHelper notesHelper, IMapper mapper)
         {
             _usersHelper = usersHelper;
             _categoriesHelper = categoriesHelper;
@@ -23,19 +26,20 @@ namespace Notes.Application.Notes.Commands.EditNote
 
         public async Task<NoteDto> Handle(EditNoteCommand request, CancellationToken cancellationToken)
         {
+            _cancellationToken = cancellationToken;
             User user = await _usersHelper.GetUserByIdAsync(request.UserId);
             Note changingNote = await _notesHelper.GetNoteByIdAsync(request.NoteId, user.Id);
             List<Category> categories = await _categoriesHelper.GetCategoriesByIdsAsync(request.CategoriesIds, user.Id);
 
-            Note updatedNote = await UpdateNoteAndSaveAsync(request, changingNote, categories, cancellationToken);
+            Note updatedNote = await UpdateNoteAndSaveAsync(request, changingNote, categories);
             return MapToDto(updatedNote);
         }
 
         async Task<Note> UpdateNoteAndSaveAsync(EditNoteCommand request, Note changingNote,
-            List<Category> categories, CancellationToken cancellationToken)
+            List<Category> categories)
         {
             SetValuesToNote(request, changingNote, categories);
-            await _notesHelper.SaveNoteAsync(changingNote, cancellationToken);
+            await _notesHelper.SaveNoteAsync(changingNote, _cancellationToken);
             return changingNote;
         }
 

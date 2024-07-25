@@ -26,7 +26,6 @@ namespace Notes.Application.Notes.Commands.DeleteNote
         public async Task<int> Handle(DeleteNoteCommand request, CancellationToken cancellationToken)
         {
             _cancellationToken = cancellationToken;
-
             User user = await _usersHelper.GetUserByIdAsync(request.UserId);
             Note deletedNote = await _notesHelper.GetNoteByIdAsync(request.NoteId, user.Id);
             await DeleteNoteAsync(deletedNote);

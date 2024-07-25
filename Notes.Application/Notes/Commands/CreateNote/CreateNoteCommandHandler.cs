@@ -16,13 +16,15 @@ namespace Notes.Application.Notes.Commands.CreateNote
         readonly INotesContext _notesContext;
         readonly IMapper _mapper;
 
+        private CancellationToken _cancellationToken = CancellationToken.None;
+
         public CreateNoteCommandHandler(
-            UsersHelper usersHelper, CategoriesHelper categoriesHelper, NotesHelper notesHalper,
+            UsersHelper usersHelper, CategoriesHelper categoriesHelper, NotesHelper notesHelper,
             INotesContext notesContext, IMapper mapper)
         {
             _usersHelper = usersHelper;
             _categoriesHalper = categoriesHelper;
-            _notesHalper = notesHalper;
+            _notesHalper = notesHelper;
 
             _notesContext = notesContext;
             _mapper = mapper;
@@ -30,14 +32,16 @@ namespace Notes.Application.Notes.Commands.CreateNote
 
         public async Task<NoteDto> Handle(CreateNoteCommand request, CancellationToken cancellationToken)
         {
+            _cancellationToken = cancellationToken;
             User forUser = await _usersHelper.GetUserByIdAsync(request.UserId);
-            List<Category> categories = await _categoriesHalper.GetCategoriesByIdsAsync(request.CategoriesIds, forUser.Id);
+            List<Category> categories =
+                await _categoriesHalper.GetCategoriesByIdsAsync(request.CategoriesIds, forUser.Id);
 
-            var newNote = await CreateAndSaveNoteAsync(request, forUser, categories, cancellationToken);
+            var newNote = await CreateAndSaveNoteAsync(request, forUser, categories);
             return MapToDto(newNote);
         }
 
-        async Task<Note> CreateAndSaveNoteAsync(CreateNoteCommand request, User forUser, List<Category> categories, CancellationToken cancellationToken)
+        async Task<Note> CreateAndSaveNoteAsync(CreateNoteCommand request, User forUser, List<Category> categories)
         {
             int oldIndex = GetOldIndexNote(forUser.Id);
             Note newNote = new Note()
@@ -50,7 +54,7 @@ namespace Notes.Application.Notes.Commands.CreateNote
                 User = forUser,
                 Categories = categories
             };
-            await _notesHalper.SaveNoteAsync(newNote, cancellationToken);
+            await _notesHalper.SaveNoteAsync(newNote, _cancellationToken);
 
             return newNote;
         }

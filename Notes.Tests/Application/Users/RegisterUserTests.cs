@@ -31,7 +31,7 @@ namespace Notes.Tests.Application.Users
         }
 
         [Test]
-        public async Task SuccessfulUserAddition()
+        public async Task RegisterUser_Success()
         {
             // Arrange
             User newUser = Helper.CreateUserOfNumber(1);
@@ -57,7 +57,7 @@ namespace Notes.Tests.Application.Users
         }
 
         [Test]
-        public void AddingUserAlreadyExistsException()
+        public void RegisterUser_InvalidLogin_ThrowsUserIsAlreadyRegisteredException()
         {
             // Arrange
             User savedUser = Helper.AddUserWithNumbers(_context, 1).First();
@@ -65,7 +65,8 @@ namespace Notes.Tests.Application.Users
             var command = CreateCommand(savedUser.Login, notSavedUser.Password);
 
             // Act / Assert
-            Assert.ThrowsAsync<UserIsAlreadyRegisteredException>(() => _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<UserIsAlreadyRegisteredException>(() =>
+                _handler.Handle(command, CancellationToken.None));
         }
 
         RegisterUserCommand CreateCommand(string login, string password) =>

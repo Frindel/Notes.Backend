@@ -41,7 +41,7 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public async Task SuccessfulEditWithoutSpecifiedCategories()
+        public async Task SuccessfulEditWithoutSpecifiedCategories_Success()
         {
             // Arrange
             Note changedNote = CreateChangedNote(_savedNote, new List<Category>());
@@ -62,7 +62,7 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public async Task SuccessfullyChangingNoteWithoutChangingCategories()
+        public async Task SuccessfullyChangingNoteWithoutChangingCategories_Success()
         {
             // Arrange
             Note changedNote = CreateChangedNote(_savedNote, _savedCategories);
@@ -84,10 +84,10 @@ namespace Notes.Tests.Application.Notes
 
         // успешное с изменением категорий
         [Test]
-        public async Task SuccessfulEditNoteWithCategoryChanges()
+        public async Task SuccessfulEditNoteWithCategoryChanges_Success()
         {
             // Arrange
-            Note changedNote = CreateChangedNote(_savedNote, new List<Category>());
+            Note changedNote = CreateChangedNote(_savedNote, []);
             var command = CreateCommand(_savedUser, changedNote);
 
             // Act
@@ -106,11 +106,11 @@ namespace Notes.Tests.Application.Notes
 
         // пользователь не найден
         [Test]
-        public void UserNotFoundException()
+        public void EditNote_InvalidUser_ThrowsNotFoundException()
         {
             // Arrange
             User notSavedUser = Helper.CreateUserOfNumber(2);
-            Note notSavedNote = Helper.CreateNoteOfNumber(2, notSavedUser, new List<Category>());
+            Note notSavedNote = Helper.CreateNoteOfNumber(2, notSavedUser, []);
             var command = CreateCommand(notSavedUser, notSavedNote);
 
             // Act / Assert
@@ -119,10 +119,10 @@ namespace Notes.Tests.Application.Notes
 
         // заметка не найдена
         [Test]
-        public void NoteNotFoundException()
+        public void EditNote_InvalidNote_ThrowsNotFoundException()
         {
             // Arrange
-            Note notSavedNote = Helper.CreateNoteOfNumber(2, _savedUser, new List<Category>());
+            Note notSavedNote = Helper.CreateNoteOfNumber(2, _savedUser, []);
             var command = CreateCommand(_savedUser, notSavedNote);
 
             // Act / Assert
@@ -131,16 +131,15 @@ namespace Notes.Tests.Application.Notes
 
         // категория не найдена
         [Test]
-        public void CategoryNotFoundException()
+        public void EditNote_InvalidCategory_ThrowsNotFoundException()
         {
             // Arrange
             Category notSavedCategory = Helper.CreateCategoryOfNumber(3, _savedUser);
-            Note updatedNote = CreateChangedNote(_savedNote, new List<Category>() { notSavedCategory });
+            Note updatedNote = CreateChangedNote(_savedNote, [notSavedCategory]);
             var command = CreateCommand(_savedUser, updatedNote);
 
             // Act / Assert
             Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
-
         }
 
         EditNoteCommand CreateCommand(User user, Note note)
