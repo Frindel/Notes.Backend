@@ -12,16 +12,14 @@ namespace Notes.Application
     {
         public static IServiceCollection OnApplication(this IServiceCollection services)
         {
-            services.AddMediatR(options =>
-            {
-                options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            });
+            services.AddMediatR(options => { options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()); });
 
             // регистрация валидаторов
             services.AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() });
 
             // регистарция промежутночны обработчиков запроса
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(OperationsLockingBehavior<,>));
 
             RegisterHelpers(services);
             return services;
@@ -35,6 +33,5 @@ namespace Notes.Application
 
             return services;
         }
-
     }
 }
