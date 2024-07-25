@@ -34,18 +34,19 @@ namespace Notes.Tests.Application.Notes
             UsersHelper usersHelper = new UsersHelper(_context, jwtTokensServiceMock.Object);
             NotesHelper notesHelper = new NotesHelper(_context);
 
-            var handler = new DeleteNoteCommandHandler(usersHelper, notesHelper, _context);
+            var handler = new DeleteNoteCommandHandler(usersHelper, notesHelper, _context, _context);
             return handler;
         }
 
         [Test]
-        public void SuccessfulDeleteUser()
+        public void SuccessfulDeleteNote()
         {
             // Arrange
             var command = CreateCommand(_savedUser, _savedNote);
 
             // Act / Accert
             Assert.IsTrue(_handler.Handle(command, CancellationToken.None).IsCompletedSuccessfully);
+            Assert.IsTrue(_context.Categories.Count() == 0); // проверка удаления категорий при их отсутсвии в других заметках
         }
 
         [Test]
