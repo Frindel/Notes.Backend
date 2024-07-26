@@ -1,0 +1,12 @@
+{
+    "name": "notes.backend",
+    "dockerComposeFile": [
+        "../docker-compose.yml",
+        "./docker-compose.yml"
+    ],
+
+    "service": "notes.webapi",
+    "workspaceFolder": "/src/",
+    
+    "shutdownAction": "stopCompose"
+}

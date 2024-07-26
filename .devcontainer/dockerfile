@@ -1,0 +1,5 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+WORKDIR /restore
+COPY  . .
+RUN dotnet restore "./Notes.WebApi/Notes.WebApi.csproj" && \
+    rm -Rf /restore

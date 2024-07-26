@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  notes.webapi:
+    container_name: notes-backend-dev
+    build: 
+      dockerfile: ./.devcontainer/dockerfile
+    ports:
+      - 8080:8080
+      - 8081:8081
+    tty: true
+    volumes:
+      - .:/src:cached,rw
+    networks:
+      - notes-network
+    depends_on:
+      - db
