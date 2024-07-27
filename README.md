@@ -14,6 +14,18 @@
 
 Проект развертывается с помощью Docker-контейнеров: `notes-backend` и `notes-db`. В качестве базы данных используется PostgreSQL, данные которой хранятся в папке `../database`, расположенной рядом с папкой проекта. Также имеется возможность использовать Devcontainer для тестирования проекта.
 
+Для заполнения базы данных, необходимо, в корневой папке пректа выполнить следующие команды:
+```
+docker compose up
+```
+```
+dotnet tool install --global dotnet-ef
+```
+```
+dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj --startup-project 
+./Notes.Persistence/Notes.Persistence.csproj
+```
+
 ## Пользователи
 
 | Атрибут      | Тип    |
