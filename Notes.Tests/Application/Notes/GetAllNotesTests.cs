@@ -65,11 +65,29 @@ namespace Notes.Tests.Application.Notes
             Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
+        [Test]
+        public async Task GetAllCategoriesInRange_Success()
+        {
+            // Arrange
+            var notesIds = Enumerable.Range(3, 40).ToArray();
+            Helper.AddNotesWithNumbers(_context, _savedUser, _savedCategories, notesIds);
+            var query = CreateQuery(_savedUser);
+            query.PageNumber = 2;
+
+            // Act
+            var notes = await _handler.Handle(query, CancellationToken.None);
+
+            // Assert
+            Assert.IsTrue(notes.Notes.Count == query.PageSize);
+        }
+
         GetAllNotesQuery CreateQuery(User user)
         {
             return new GetAllNotesQuery()
             {
-                UserId = user.Id
+                UserId = user.Id,
+                PageNumber = 1,
+                PageSize = 20
             };
         }
     }

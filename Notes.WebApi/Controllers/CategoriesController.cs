@@ -13,11 +13,13 @@ namespace Notes.WebApi.Controllers
     public class CategoriesController : BaseController
     {
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
             var query = new GetAllCategoriesQuery()
             {
-                UserId = CurrentUserId
+                UserId = CurrentUserId,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
             var categories = await Mediator.Send(query);
             return Ok(categories.Categories);

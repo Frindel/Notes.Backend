@@ -44,7 +44,7 @@ namespace Notes.Tests.Application.Categories
             // Act
             var categories = await _handler.Handle(query, CancellationToken.None);
 
-            // Accert
+            // Assert
             Assert.Multiple(() =>
             {
                 Assert.IsNotNull(categories);
@@ -66,11 +66,29 @@ namespace Notes.Tests.Application.Categories
             Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
         }
 
-        public GetAllCategoriesQuery CreateQuery(User forUser)
+        [Test]
+        public async Task GetAllCategoriesInRange_Success()
+        {
+            // Arrange
+            var categoriesIds = Enumerable.Range(3, 40).ToArray();
+            Helper.AddCategoriesWithNumbers(_context, _savedUser, categoriesIds);
+            var query = CreateQuery(_savedUser);
+            query.PageNumber = 2;
+
+            // Act
+            var categories = await _handler.Handle(query, CancellationToken.None);
+
+            // Assert
+            Assert.IsTrue(categories.Categories.Count == query.PageSize);
+        }
+
+        GetAllCategoriesQuery CreateQuery(User forUser)
         {
             return new GetAllCategoriesQuery()
             {
-                UserId = forUser.Id
+                UserId = forUser.Id,
+                PageNumber = 1,
+                PageSize = 10
             };
         }
     }

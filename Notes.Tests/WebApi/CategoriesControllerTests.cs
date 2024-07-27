@@ -30,7 +30,7 @@ namespace Notes.Tests.WebApi
         [Test]
         public async Task GetAllCategories_Success()
         {
-            // Arange
+            // Arrange
             Helper.SetUserIdForIdentity(_controller.HttpContext, _savedUser.Id);
             Helper.AddCategoriesWithNumbers(_context, _savedUser, 1);
 

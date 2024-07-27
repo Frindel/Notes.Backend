@@ -15,11 +15,13 @@ namespace Notes.WebApi.Controllers
     public class NotesController : BaseController
     {
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 20)
         {
             var query = new GetAllNotesQuery()
             {
-                UserId = CurrentUserId
+                UserId = CurrentUserId,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
             var notes = await Mediator.Send(query);
             return Ok(notes.Notes);

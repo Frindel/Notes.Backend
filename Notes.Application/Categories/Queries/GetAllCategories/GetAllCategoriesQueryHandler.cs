@@ -29,14 +29,18 @@ namespace Notes.Application.Categories.Queries.GetAllCategories
         {
             _cancellationToken = cancellationToken;
             User selectedUser = await _usersHelper.GetUserByIdAsync(request.UserId);
-            List<Category> categories = await SelectAllCategoriesForUserAsync(selectedUser);
+            List<Category> categories =
+                await SelectAllCategoriesForUserAsync(selectedUser, request.PageNumber, request.PageSize);
             return MapToDto(categories);
         }
 
-        async Task<List<Category>> SelectAllCategoriesForUserAsync(User user)
+        async Task<List<Category>> SelectAllCategoriesForUserAsync(User user, int pageNumber, int pageSize)
         {
+            int startIndex = (pageNumber - 1) * pageSize;
             return await _categoriesContext.Categories
                 .Where(c => c.User.Id == user.Id)
+                .Skip(startIndex)
+                .Take(pageSize)
                 .ToListAsync(_cancellationToken);
         }
 

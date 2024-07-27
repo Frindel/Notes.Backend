@@ -25,15 +25,18 @@ namespace Notes.Application.Notes.Queries.GetAllNotes
         public async Task<NotesDto> Handle(GetAllNotesQuery request, CancellationToken cancellationToken)
         {
             User user = await _usersHelper.GetUserByIdAsync(request.UserId);
-            List<Note> userNotes = await GetNotesFor(user);
+            List<Note> userNotes = await GetNotesFor(user, request.PageNumber, request.PageSize);
 
             return MapToDto(userNotes);
         }
 
-        async Task<List<Note>> GetNotesFor(User user)
+        async Task<List<Note>> GetNotesFor(User user, int pageNumber, int pageSize)
         {
+            int startIndex = (pageNumber - 1) * pageSize;
             List<Note> notes = await _notesContext.Notes.Include(n => n.Categories)
                 .Where(n => n.User.Id == user.Id)
+                .Skip(startIndex)
+                .Take(pageSize)
                 .ToListAsync();
             return notes;
         }
