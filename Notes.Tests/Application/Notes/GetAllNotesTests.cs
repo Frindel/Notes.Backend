@@ -32,8 +32,9 @@ namespace Notes.Tests.Application.Notes
         {
             var jwtTokensServiceMock = new Mock<IJwtTokensService>();
             UsersHelper usersHelper = new UsersHelper(_context, jwtTokensServiceMock.Object);
+            CategoriesHelper categoriesHelper = new CategoriesHelper(_context);
 
-            return new GetAllNotesQueryHandler(usersHelper, _context, Mapper);
+            return new GetAllNotesQueryHandler(usersHelper, categoriesHelper, _context, Mapper);
         }
 
         [Test]
@@ -66,7 +67,7 @@ namespace Notes.Tests.Application.Notes
         }
 
         [Test]
-        public async Task GetAllCategoriesInRange_Success()
+        public async Task GetAllNotesInRange_Success()
         {
             // Arrange
             var notesIds = Enumerable.Range(3, 40).ToArray();
@@ -81,13 +82,43 @@ namespace Notes.Tests.Application.Notes
             Assert.IsTrue(notes.Notes.Count == query.PageSize);
         }
 
+        [Test]
+        public async Task GetAllNotesWithCategories_Success()
+        {
+            // Arrange
+            var newSavedCategory =  Helper.AddCategoriesWithNumbers(_context, _savedUser, 3).First();
+            var newSavedNote = Helper.AddNotesWithNumbers(_context, _savedUser, [newSavedCategory], 4).First();
+            var query = CreateQuery(_savedUser);
+            query.CategoriesIds.Add(newSavedCategory.PersonalId);
+
+            // Act
+            var response = await _handler.Handle(query, CancellationToken.None);
+
+            // Assert
+            Assert.IsTrue(response.Notes[0].Id == newSavedNote.Id);
+        }
+
+        [Test]
+        public void GetAllNotesWithCategories_NonExistentCategories_ThrowsNotFoundException()
+        {
+            const int notSavedCategoryId = 3;
+
+            // Arrange
+            var query = CreateQuery(_savedUser);
+            query.CategoriesIds.Add(notSavedCategoryId);
+
+            // Act / assert
+            Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(query, CancellationToken.None));
+        }
+
         GetAllNotesQuery CreateQuery(User user)
         {
             return new GetAllNotesQuery()
             {
                 UserId = user.Id,
                 PageNumber = 1,
-                PageSize = 20
+                PageSize = 20,
+                CategoriesIds = new List<int>()
             };
         }
     }

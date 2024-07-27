@@ -54,13 +54,37 @@ namespace Notes.Tests.WebApi
         }
 
         [Test]
-        public void GetAllNotes_NegativeUserId_ThrowsValudationException()
+        public void GetAllNotes_NegativeUserId_ThrowsValidationException()
         {
             // Arrange
             Helper.SetUserIdForIdentity(_controller.HttpContext, -1);
 
             // Act / assert
             Assert.ThrowsAsync<ValidationException>(() => _controller.GetAll());
+        }
+        
+        [Test]
+        public void GetAllNotes_NegativePageNumber_ThrowsValidationException()
+        {
+            const int negativeValue = -1;
+            
+            // Arrange
+            Helper.SetUserIdForIdentity(_controller.HttpContext, _savedUser.Id);
+
+            // Act / assert
+            Assert.ThrowsAsync<ValidationException>(() => _controller.GetAll(pageNumber: negativeValue));
+        }
+        
+        [Test]
+        public void GetAllNotes_NegativePageSize_ThrowsValidationException()
+        {
+            const int negativeValue = -1;
+            
+            // Arrange
+            Helper.SetUserIdForIdentity(_controller.HttpContext, _savedUser.Id);
+
+            // Act / assert
+            Assert.ThrowsAsync<ValidationException>(() => _controller.GetAll(pageSize: negativeValue));
         }
 
         #endregion

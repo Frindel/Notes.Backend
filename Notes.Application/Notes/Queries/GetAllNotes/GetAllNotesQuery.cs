@@ -10,5 +10,7 @@ namespace Notes.Application.Notes.Queries.GetAllNotes
         public int PageNumber { get; set; }
 
         public int PageSize { get; set; }
+
+        public List<int> CategoriesIds { get; set; } = null!;
     }
 }

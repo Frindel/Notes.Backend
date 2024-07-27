@@ -34,7 +34,7 @@ namespace Notes.Application.Notes.Dto
                 .ForMember(noteDto => noteDto.Categories,
                 opt => opt.MapFrom(note => note.Categories.Select(c => new CategoryDto()
                 {
-                    Id = c.Id,
+                    Id = c.PersonalId,
                     Name = c.Name,
                 })
                 ));

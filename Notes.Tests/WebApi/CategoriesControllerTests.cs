@@ -57,6 +57,30 @@ namespace Notes.Tests.WebApi
         }
 
         [Test]
+        public void GetAllCategories_NegativePageNumber_ThrowsValidationException()
+        {
+            const int negativeValue = -1;
+
+            // Arrange
+            Helper.SetUserIdForIdentity(_controller.HttpContext, _savedUser.Id);
+
+            // Act / assert
+            Assert.ThrowsAsync<ValidationException>(() => _controller.GetAll(pageNumber: negativeValue));
+        }
+
+        [Test]
+        public void GetAllCategories_NegativePageSize_ThrowsValidationException()
+        {
+            const int negativeValue = -1;
+
+            // Arrange
+            Helper.SetUserIdForIdentity(_controller.HttpContext, _savedUser.Id);
+
+            // Act / assert
+            Assert.ThrowsAsync<ValidationException>(() => _controller.GetAll(pageSize: negativeValue));
+        }
+
+        [Test]
         public async Task GetCategory_Success()
         {
             // Arrange
@@ -76,7 +100,7 @@ namespace Notes.Tests.WebApi
         }
 
         [Test]
-        public void GetCategory_NegativeUserIdOrCategoryId_ThrowsValudationException()
+        public void GetCategory_NegativeUserIdOrCategoryId_ThrowsValidationException()
         {
             const int negativeValue = -1;
 
@@ -85,7 +109,6 @@ namespace Notes.Tests.WebApi
 
             // Act / Assert
             Assert.ThrowsAsync<ValidationException>(() => _controller.GetById(negativeValue));
-
         }
 
         [Test]
@@ -177,7 +200,6 @@ namespace Notes.Tests.WebApi
 
             // Act / assert
             Assert.ThrowsAsync<NotFoundException>(() => _controller.Create(request));
-
         }
     }
 }

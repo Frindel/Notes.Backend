@@ -13,32 +13,59 @@ namespace Notes.Application.Notes.Queries.GetAllNotes
     {
         readonly UsersHelper _usersHelper;
         readonly INotesContext _notesContext;
+        private CategoriesHelper _categoriesHelper;
         readonly IMapper _mapper;
 
-        public GetAllNotesQueryHandler(UsersHelper usersHelper, INotesContext notesContext, IMapper mapper)
+        private CancellationToken _cancellationToken;
+
+        public GetAllNotesQueryHandler(UsersHelper usersHelper, CategoriesHelper categoriesHelper,
+            INotesContext notesContext, IMapper mapper)
         {
             _usersHelper = usersHelper;
             _notesContext = notesContext;
+            _categoriesHelper = categoriesHelper;
             _mapper = mapper;
         }
 
         public async Task<NotesDto> Handle(GetAllNotesQuery request, CancellationToken cancellationToken)
         {
+            _cancellationToken = cancellationToken;
             User user = await _usersHelper.GetUserByIdAsync(request.UserId);
-            List<Note> userNotes = await GetNotesFor(user, request.PageNumber, request.PageSize);
+
+            // проверка существования категорий с переданными id. При их отсутствии возникает исключение NotFoundException
+            await CheckExistenceOfCategories(request.CategoriesIds, user.Id);
+            List<Note> userNotes =
+                await GetNotesFor(user.Id, request.PageNumber, request.PageSize, request.CategoriesIds);
 
             return MapToDto(userNotes);
         }
 
-        async Task<List<Note>> GetNotesFor(User user, int pageNumber, int pageSize)
+        async Task CheckExistenceOfCategories(List<int> categoriesIds, int userId)
+        {
+            await _categoriesHelper.GetCategoriesByIdsAsync(categoriesIds, userId);
+        }
+
+        async Task<List<Note>> GetNotesFor(int userId, int pageNumber, int pageSize, List<int> categoriesIds)
         {
             int startIndex = (pageNumber - 1) * pageSize;
-            List<Note> notes = await _notesContext.Notes.Include(n => n.Categories)
-                .Where(n => n.User.Id == user.Id)
+            var query = BuildNotesQueryWithCategories(categoriesIds, userId);
+
+            List<Note> notes = await query
                 .Skip(startIndex)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToListAsync(_cancellationToken);
+
             return notes;
+        }
+
+        IQueryable<Note> BuildNotesQueryWithCategories(List<int> categoriesIds, int userId)
+        {
+            IQueryable<Note> query = _notesContext.Notes.Include(n => n.Categories)
+                .Where(n => n.User.Id == userId);
+
+            if (categoriesIds.Count == 0)
+                return query;
+            return query.Where(n => n.Categories.Any(c => categoriesIds.Contains(c.PersonalId)));
         }
 
         NotesDto MapToDto(List<Note> notes)
