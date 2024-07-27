@@ -95,8 +95,9 @@
 
 ### Методы категорий
 
-#### GET /api/categories
-Возвращает все категории пользователя.
+#### GET /api/categories?pageNumber={pageNumber}&pageSize={pageSize}
+Постранично возвращает все категории пользователя.
+`pageNumber` и `pageSize` не обязательны. По умолчанию `pageNumber = 1`, `pageSize = 20`. 
 
 **Ответ:**
 ```json
@@ -153,8 +154,10 @@
 
 ### Методы заметок
 
-#### GET /api/notes
+#### GET /api/notes?pageNumber={pageNumber}&pageSize={pageSize}&categories[]={categoryId}
 Возвращает все заметки пользователя.
+`pageNumber`, `pageSize` и `categories` не обязательны. По умолчанию `pageNumber = 1`, `pageSize = 20`.
+При отсутствии значений в `categories`  выполняется выборка по всем категориям пользователя. 
 
 **Ответ:**
 ```json
