@@ -143,7 +143,8 @@ namespace Notes.Tests.WebApi
             Category notSavedCategory = Helper.CreateCategoryOfNumber(1, _savedUser);
             var request = new CreateCategoryRequest()
             {
-                Name = notSavedCategory.Name
+                Name = notSavedCategory.Name,
+                Color = "#AAA"
             };
 
             // Act
@@ -195,11 +196,27 @@ namespace Notes.Tests.WebApi
             Category category = Helper.CreateCategoryOfNumber(1, _notSavedUser);
             var request = new CreateCategoryRequest()
             {
-                Name = category.Name
+                Name = category.Name,
+                Color = "#AAA"
             };
 
             // Act / assert
             Assert.ThrowsAsync<NotFoundException>(() => _controller.Create(request));
+        }
+
+        [Test]
+        public void CreateCategory_InvalidColor_ThrowsValidationException()
+        {
+            Helper.SetUserIdForIdentity(_controller.HttpContext, _savedUser.Id);
+            Category category = Helper.CreateCategoryOfNumber(1, _savedUser);
+            var request = new CreateCategoryRequest()
+            {
+                Name = category.Name,
+                Color = "#AQA"
+            };
+
+            // Act / assert
+            Assert.ThrowsAsync<ValidationException>(() => _controller.Create(request));
         }
     }
 }

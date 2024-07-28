@@ -79,6 +79,7 @@ namespace Notes.Tests.Application.Categories
             return new CreateCategoryCommand()
             {
                 CategoryName = categoryName,
+                Color = "#AAA",
                 UserId = forUser.Id
             };
         }

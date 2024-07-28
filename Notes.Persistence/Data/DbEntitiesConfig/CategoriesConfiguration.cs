@@ -11,12 +11,13 @@ namespace Notes.Persistence.Data.DbEntitiesConfig
             SetTableProperties(builder);
             SetPersonalIdProperties(builder);
             SetNameProperties(builder);
+            SetColorProperties(builder);
         }
 
         EntityTypeBuilder<Category> SetTableProperties(EntityTypeBuilder<Category> builder)
         {
             builder.ToTable("categories");
-            builder.HasKey(t => new { t.Id, t.PersonalId});
+            builder.HasKey(t => new { t.Id, t.PersonalId });
 
             builder.Property(c => c.Id)
                 .HasColumnName("category_id")
@@ -45,6 +46,16 @@ namespace Notes.Persistence.Data.DbEntitiesConfig
                 .HasColumnType("text")
                 .HasMaxLength(30);
 
+            return builder;
+        }
+
+        EntityTypeBuilder<Category> SetColorProperties(EntityTypeBuilder<Category> builder)
+        {
+            builder.Property(c => c.ColorRgb)
+                .HasColumnName("color")
+                .IsRequired()
+                .HasColumnType("integer");
+            builder.Ignore(c => c.Color);
             return builder;
         }
     }

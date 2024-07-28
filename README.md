@@ -14,18 +14,6 @@
 
 Проект развертывается с помощью Docker-контейнеров: `notes-backend` и `notes-db`. В качестве базы данных используется PostgreSQL, данные которой хранятся в папке `../database`, расположенной рядом с папкой проекта. Также имеется возможность использовать Devcontainer для тестирования проекта.
 
-Для заполнения базы данных, необходимо, в корневой папке пректа выполнить следующие команды:
-```
-docker compose up
-```
-```
-dotnet tool install --global dotnet-ef
-```
-```
-dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj --startup-project 
-./Notes.Persistence/Notes.Persistence.csproj
-```
-
 ## Пользователи
 
 | Атрибут      | Тип    |
@@ -107,21 +95,20 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
 
 ### Методы категорий
 
-#### GET /api/categories?pageNumber={pageNumber}&pageSize={pageSize}
-Постранично возвращает все категории пользователя.
-`pageNumber` и `pageSize` не обязательны. По умолчанию `pageNumber = 1`, `pageSize = 20`. 
+#### GET /api/categories
+Возвращает все категории пользователя.
 
 **Ответ:**
 ```json
 [
   {
     "id": 3,
-    "name": "category name"
+    "name": "category name",
+    "color": "#AAA"
   }
   ...
 ]
 ```
-**Ошибки:** отрицательный номер или размер страницы (400).
 
 #### GET /api/categories/{categoryId}
 Возвращает информацию о конкретной категории.
@@ -130,7 +117,8 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
 ```json
 {
   "id": 3,
-  "name": "category name"
+  "name": "category name",
+  "color": "#AAA"
 }
 ```
 **Ошибки:** отрицательное id категории (400).
@@ -141,14 +129,16 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
 **Запрос:**
 ```json
 {
-  "name": "category name"
+  "name": "category name",
+  "color": "#AAA"
 }
 ```
 **Ответ:**
 ```json
 {
   "id": 5,
-  "name": "category name"
+  "name": "category name",
+  "color": "#AAA"
 }
 ```
 **Ошибки:** передано пустое имя категории, либо категория с данным названием уже существует (400).
@@ -167,10 +157,8 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
 
 ### Методы заметок
 
-#### GET /api/notes?pageNumber={pageNumber}&pageSize={pageSize}&categories[]={categoryId}
+#### GET /api/notes
 Возвращает все заметки пользователя.
-`pageNumber`, `pageSize` и `categories` не обязательны. По умолчанию `pageNumber = 1`, `pageSize = 20`.
-При отсутствии значений в `categories`  выполняется выборка по всем категориям пользователя. 
 
 **Ответ:**
 ```json
@@ -186,7 +174,6 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   ...
 ]
 ```
-**Ошибки:** отрицательный номер или размер страницы (400); указанные категории не найдены (404)
 
 #### GET /api/notes/{noteId}
 Возвращает информацию о конкретной заметке.

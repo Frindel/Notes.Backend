@@ -43,7 +43,8 @@ namespace Notes.WebApi.Controllers
             var command = new CreateCategoryCommand()
             {
                 UserId = CurrentUserId,
-                CategoryName = request.Name
+                CategoryName = request.Name,
+                Color = request.Color
             };
             var createdCategory = await Mediator.Send(command);
             return Ok(createdCategory);

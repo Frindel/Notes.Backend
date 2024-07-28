@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Drawing;
+using AutoMapper;
 using Notes.Application.Common.Mapping;
 using Notes.Domain;
 
@@ -22,23 +23,23 @@ namespace Notes.Application.Notes.Dto
         {
             profile.CreateMap<Note, NoteDto>()
                 .ForMember(noteDto => noteDto.Id,
-                opt => opt.MapFrom(note => note.PersonalId))
+                    opt => opt.MapFrom(note => note.PersonalId))
                 .ForMember(noteDto => noteDto.Name,
-                opt => opt.MapFrom(note => note.Name))
+                    opt => opt.MapFrom(note => note.Name))
                 .ForMember(noteDto => noteDto.Description,
-                opt => opt.MapFrom(note => note.Description))
+                    opt => opt.MapFrom(note => note.Description))
                 .ForMember(noteDto => noteDto.Time,
-                opt => opt.MapFrom(note => note.Time))
+                    opt => opt.MapFrom(note => note.Time))
                 .ForMember(noteDto => noteDto.IsCompleted,
-                opt => opt.MapFrom(note => note.IsCompleted))
+                    opt => opt.MapFrom(note => note.IsCompleted))
                 .ForMember(noteDto => noteDto.Categories,
-                opt => opt.MapFrom(note => note.Categories.Select(c => new CategoryDto()
-                {
-                    Id = c.PersonalId,
-                    Name = c.Name,
-                })
-                ));
-
+                    opt => opt.MapFrom(note => note.Categories.Select(c => new CategoryDto()
+                        {
+                            Id = c.PersonalId,
+                            Name = c.Name,
+                            Color = ColorTranslator.ToHtml(c.Color)
+                        })
+                    ));
         }
     }
 }

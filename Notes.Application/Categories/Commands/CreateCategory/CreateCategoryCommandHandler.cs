@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Drawing;
+using AutoMapper;
 using FluentValidation;
 using MediatR;
 using Notes.Application.Categories.Dto;
@@ -35,7 +36,7 @@ namespace Notes.Application.Categories.Commands.CreateCategory
 
             User selectedUser = await _usersHelper.GetUserByIdAsync(request.UserId);
             Category savedCategory =
-                await CreateAndSaveCategoryAsync(lowerCategoryName, selectedUser);
+                await CreateAndSaveCategoryAsync(request, selectedUser);
             return MapToDto(savedCategory);
         }
 
@@ -43,10 +44,16 @@ namespace Notes.Application.Categories.Commands.CreateCategory
             _categoriesContext.Categories.FirstOrDefault(c => c.Name == categoryName) != null;
 
 
-        async Task<Category> CreateAndSaveCategoryAsync(string name, User user)
+        async Task<Category> CreateAndSaveCategoryAsync(CreateCategoryCommand request, User user)
         {
             int oldIndex = GetLastIndexCategoryForUser(user.Id);
-            Category newCategory = new Category() { PersonalId = oldIndex + 1, Name = name, User = user };
+            Category newCategory = new Category()
+            {
+                PersonalId = oldIndex + 1,
+                Name = request.CategoryName,
+                Color = ColorTranslator.FromHtml(request.Color),
+                User = user
+            };
             return await _cateriesHelper.SaveCategoryAsync(newCategory, _cancellationToken);
         }
 

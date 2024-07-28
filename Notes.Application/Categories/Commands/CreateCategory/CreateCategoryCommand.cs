@@ -8,5 +8,7 @@ namespace Notes.Application.Categories.Commands.CreateCategory
         public int UserId { get; set; }
 
         public string CategoryName { get; set; } = null!;
+
+        public string Color { get; set; } = null!;
     }
 }
