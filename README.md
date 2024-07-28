@@ -14,6 +14,18 @@
 
 Проект развертывается с помощью Docker-контейнеров: `notes-backend` и `notes-db`. В качестве базы данных используется PostgreSQL, данные которой хранятся в папке `../database`, расположенной рядом с папкой проекта. Также имеется возможность использовать Devcontainer для тестирования проекта.
 
+Для заполнения базы данных, необходимо, в корневой папке пректа выполнить следующие команды:
+```
+docker compose up
+```
+```
+dotnet tool install --global dotnet-ef
+```
+```
+dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj --startup-project 
+./Notes.Persistence/Notes.Persistence.csproj
+```
+
 ## Пользователи
 
 | Атрибут      | Тип    |
@@ -95,8 +107,9 @@
 
 ### Методы категорий
 
-#### GET /api/categories
-Возвращает все категории пользователя.
+#### GET /api/categories?pageNumber={pageNumber}&pageSize={pageSize}
+Постранично возвращает все категории пользователя.
+`pageNumber` и `pageSize` не обязательны. По умолчанию `pageNumber = 1`, `pageSize = 20`. 
 
 **Ответ:**
 ```json
@@ -104,11 +117,12 @@
   {
     "id": 3,
     "name": "category name",
-    "color": "#AAA"
+    "color": "#AAAAAA"
   }
   ...
 ]
 ```
+**Ошибки:** отрицательный номер или размер страницы (400).
 
 #### GET /api/categories/{categoryId}
 Возвращает информацию о конкретной категории.
@@ -118,7 +132,7 @@
 {
   "id": 3,
   "name": "category name",
-  "color": "#AAA"
+  "color": "#AAAAAA"
 }
 ```
 **Ошибки:** отрицательное id категории (400).
@@ -130,7 +144,7 @@
 ```json
 {
   "name": "category name",
-  "color": "#AAA"
+  "color": "#AAAAAA"
 }
 ```
 **Ответ:**
@@ -138,10 +152,10 @@
 {
   "id": 5,
   "name": "category name",
-  "color": "#AAA"
+  "color": "#AAAAAA"
 }
 ```
-**Ошибки:** передано пустое имя категории, либо категория с данным названием уже существует (400).
+**Ошибки:** передано пустое имя категории, либо категория с данным названием уже существует, либо неверный формат кода цвета (400).
 
 ## Заметки
 
@@ -157,8 +171,10 @@
 
 ### Методы заметок
 
-#### GET /api/notes
+#### GET /api/notes?pageNumber={pageNumber}&pageSize={pageSize}&categories[]={categoryId}
 Возвращает все заметки пользователя.
+`pageNumber`, `pageSize` и `categories` не обязательны. По умолчанию `pageNumber = 1`, `pageSize = 20`.
+При отсутствии значений в `categories`  выполняется выборка по всем категориям пользователя. 
 
 **Ответ:**
 ```json
@@ -169,11 +185,19 @@
     "description": "note description",
     "time": "2024-07-26T19:10:57.869Z",
     "isCompleted": false,
-    "categories": [1, 2]
+    "categories": [
+      {
+        "id": 1,
+        "name": "category name",
+        "color": "#AAAAAA"
+      }
+      ...
+    ]
   }
   ...
 ]
 ```
+**Ошибки:** отрицательный номер или размер страницы (400); указанные категории не найдены (404)
 
 #### GET /api/notes/{noteId}
 Возвращает информацию о конкретной заметке.
@@ -186,7 +210,14 @@
   "description": "note description",
   "time": "2024-07-26T19:10:57.869Z",
   "isCompleted": false,
-  "categories": [1, 2]
+  "categories": [
+      {
+        "id": 1,
+        "name": "category name",
+        "color": "#AAAAAA"
+      }
+      ...
+    ]
 }
 ```
 **Ошибки:** отрицательное id заметки (400).
