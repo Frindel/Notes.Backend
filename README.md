@@ -1,20 +1,23 @@
-# Описание проекта
+# Project description
 
-Данный проект представляет собой пример решения тривиальной задачи управления заметками. Сервис реализован в виде REST API на базе ASP.NET Core Web API.
+This project is an example solution for a simple note management task. The service is implemented as a REST API based on ASP.NET Core Web API.
 
-### Используемые технологии:
+### Technologies used:
 - MediatoR
 - FluentValidation
 - AutoMapper
 - Entity Framework
 
-Сервис работает с тремя типами данных: пользователи, заметки и категории заметок. У каждой заметки и категории есть уникальный идентификатор (PersonalId), принадлежащий пользователю. Для всех методов, кроме `POST /api/users/register`, необходимо устанавливать заголовок `Authorization: Bearer [access-token]`.
+The service works with three types of data: users, notes, and note categories. Each note and category has a unique identifier (`PersonalId`) that belongs to a user.
+For all methods except `POST /api/users/register`, the `Authorization: Bearer [access-token]` header must be set.
 
-## Развертывание проекта
+## Project deployment
 
-Проект развертывается с помощью Docker-контейнеров: `notes-backend` и `notes-db`. В качестве базы данных используется PostgreSQL, данные которой хранятся в папке `../database`, расположенной рядом с папкой проекта. Также имеется возможность использовать Devcontainer для тестирования проекта.
+The project is deployed using Docker containers: `notes-backend` and `notes-db`.
+PostgreSQL is used as the database, and its data is stored in the `../database` folder located next to the project folder.
+It is also possible to use a Devcontainer for project testing.
 
-Для заполнения базы данных, необходимо, в корневой папке пректа выполнить следующие команды:
+To populate the database, execute the following commands in the project's root folder:
 ```
 docker compose up
 ```
@@ -26,30 +29,33 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
 ./Notes.Persistence/Notes.Persistence.csproj
 ```
 
-## Пользователи
+## Users
 
-| Атрибут      | Тип    |
-| ------------ | -------|
-| id           | int    |
-| name         | string |
-| password     | string |
-| refresh_token| string |
+| Attribute      | Type    |
+| -------------- | ------- |
+| id             | int     |
+| name           | string  |
+| password       | string  |
+| refresh_token  | string  |
 
-Каждая заметка и категория принадлежат конкретному пользователю. Для создания пользователей используется `POST /api/users/register`. Для аутентификации используются JWT токены: краткосрочные (access-токен) и долгосрочные (refresh-токен). Получить токены можно при регистрации (`POST /api/users/register`) и авторизации (`POST /api/users/login`).
+Each note and category belongs to a specific user.
+Users are created using `POST /api/users/register`.
+JWT tokens are used for authentication: short-term (access token) and long-term (refresh token).
+Tokens can be obtained during registration (`POST /api/users/register`) and login (`POST /api/users/login`).
 
-### Методы пользователей
+### User methods
 
 #### POST /api/users/register
-Используется для регистрации пользователя. Возвращает access и refresh токены.
+Used for user registration. Returns access and refresh tokens.
 
-**Запрос:**
+**Request:**
 ```json
 {
   "login": "person 1",
   "password": "123456"
 }
 ```
-**Ответ:**
+**Response:**
 ```json
 {
   "login": "person 1",
@@ -57,46 +63,46 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5..."
 }
 ```
-**Ошибки:** передан пустой логин или пароль (400); указанный логин уже используется (409).
+**Errors:** empty login or password provided (400); login already in use (409).
 
 #### POST /api/users/login
-Используется для получения access и refresh токенов.
+Used to obtain access and refresh tokens.
 
-**Запрос:**
+**Request:**
 ```json
 {
   "login": "person 1",
   "password": "123456"
 }
 ```
-**Ответ:**
+**Response:**
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5...",
   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5..."
 }
 ```
-**Ошибки:** передан пустой логин или пароль (400); неверный логин или пароль (403).
+**Errors:** empty login or password provided (400); incorrect login or password (403).
 
 #### POST /api/users/update-tokens
-Выполняет переиздание access и refresh токенов по refresh-токену.
+Refreshes access and refresh tokens using a refresh token.
 
-**Запрос:**
+**Request:**
 ```json
 {
   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5..."
 }
 ```
-**Ответ:**
+**Response:**
 ```json
 {
   "accessToken": "eyJhbGciOiJIUzI1NiIsInR5...",
   "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5..."
 }
 ```
-**Ошибки:** передан пустой refresh-токен, либо он не валиден (400).
+**Errors:** empty or invalid refresh token provided (400).
 
-## Категории заметок
+## Note categories
 
 | Атрибут     | Тип    |
 | ------------| -------|
@@ -105,13 +111,13 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
 | user_id     | int    |
 | name        | string |
 
-### Методы категорий
+### Category methods
 
 #### GET /api/categories?pageNumber={pageNumber}&pageSize={pageSize}
-Постранично возвращает все категории пользователя.
-`pageNumber` и `pageSize` не обязательны. По умолчанию `pageNumber = 1`, `pageSize = 20`. 
+Returns all user categories with pagination.
+`pageNumber` and `pageSize` are optional. Defaults: `pageNumber = 1`, `pageSize = 20`.
 
-**Ответ:**
+**Response:**
 ```json
 [
   {
@@ -122,12 +128,12 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   ...
 ]
 ```
-**Ошибки:** отрицательный номер или размер страницы (400).
+**Errors:** negative page number or size (400).
 
 #### GET /api/categories/{categoryId}
-Возвращает информацию о конкретной категории.
+Returns information about a specific category.
 
-**Ответ:**
+**Response:**
 ```json
 {
   "id": 3,
@@ -135,19 +141,19 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   "color": "#AAAAAA"
 }
 ```
-**Ошибки:** отрицательное id категории (400).
+**Errors:** negative category ID (400).
 
 #### POST /api/categories/
-Добавляет новую категорию.
+Adds a new category.
 
-**Запрос:**
+**Request:**
 ```json
 {
   "name": "category name",
   "color": "#AAAAAA"
 }
 ```
-**Ответ:**
+**Response:**
 ```json
 {
   "id": 5,
@@ -155,28 +161,28 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   "color": "#AAAAAA"
 }
 ```
-**Ошибки:** передано пустое имя категории, либо категория с данным названием уже существует, либо неверный формат кода цвета (400).
+**Errors:** empty category name, category with this name already exists, or invalid color format (400).
 
-## Заметки
+## Notes
 
-| Атрибут     | Тип      |
-| ------------| ---------|
-| id          | int      |
-| personal_id | int      |
-| user_id     | int      |
-| name        | string   |
-| description | string   |
-| time        | datetime |
-| is_completed| int      |
+| Attribute     | Type      |
+| ------------- | --------- |
+| id            | int       |
+| personal_id   | int       |
+| user_id       | int       |
+| name          | string    |
+| description   | string    |
+| time          | datetime  |
+| is_completed  | int       |
 
-### Методы заметок
+### Note methods
 
 #### GET /api/notes?pageNumber={pageNumber}&pageSize={pageSize}&categories[]={categoryId}
-Возвращает все заметки пользователя.
-`pageNumber`, `pageSize` и `categories` не обязательны. По умолчанию `pageNumber = 1`, `pageSize = 20`.
-При отсутствии значений в `categories`  выполняется выборка по всем категориям пользователя. 
+Returns all user notes.
+`pageNumber`, `pageSize`, and `categories` are optional. Defaults: `pageNumber = 1`, `pageSize = 20`.
+If `categories` is empty, notes from all user categories are selected.
 
-**Ответ:**
+**Response:**
 ```json
 [
   {
@@ -197,12 +203,12 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   ...
 ]
 ```
-**Ошибки:** отрицательный номер или размер страницы (400); указанные категории не найдены (404)
+**Errors:** negative page number or size (400); specified categories not found (404).
 
 #### GET /api/notes/{noteId}
-Возвращает информацию о конкретной заметке.
+Returns information about a specific note.
 
-**Ответ:**
+**Response:**
 ```json
 {
   "id": 1,
@@ -220,12 +226,12 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
     ]
 }
 ```
-**Ошибки:** отрицательное id заметки (400).
+**Errors:** negative note ID (400).
 
 #### POST /api/notes
-Добавляет заметку.
+Adds a new note.
 
-**Запрос:**
+**Request:**
 ```json
 {
   "name": "note name",
@@ -234,7 +240,7 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   "categoriesIds": [1, 2]
 }
 ```
-**Ответ:** 
+**Response:** 
 ```json
 {
   "id": 1,
@@ -245,12 +251,12 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   "categoriesIds": [1, 2]
 }
 ```
-**Ошибки:** передано пустое имя/описание категории (400); указанные категории не найдены (404).
+**Errors:** empty note name/description (400); specified categories not found (404).
 
 #### PUT /api/notes
-Редактирует заметку.
+Edits a note.
 
-**Запрос:**
+**Request:**
 ```json
 {
   "id": 1,
@@ -261,7 +267,7 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   "categoriesIds": [1, 2]
 }
 ```
-**Ответ:**
+**Response:**
 ```json
 {
   "id": 1,
@@ -272,13 +278,13 @@ dotnet ef database update --project ./Notes.Persistence/Notes.Persistence.csproj
   "categoriesIds": [1, 2]
 }
 ```
-**Ошибки:** передано пустое имя/описание категории, либо id заметки отрицательно (400); указанные категории или заметка не найдены (404).
+**Errors:** empty note name/description, or negative note ID (400); specified categories or note not found (404).
 
 #### DELETE /api/notes/{noteId}
-Удаляет заметку.
+Deletes a note.
 
-_При удалении заметки также удаляются относящиеся к ней категории, при условии, что они не присутствуют у других заметок._
+_Deleting a note also removes its associated categories if they are not used by other notes._
 
-**Ответ:** отсутствует тело ответа.
+**Response:** no response body.
 
-**Ошибки:** id заметки отрицательно (400); заметка не найдена (404).
+**Errors:** negative note ID (400); note not found (404).
